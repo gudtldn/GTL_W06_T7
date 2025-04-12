@@ -4,6 +4,8 @@
 
 #include "Actors/Player.h"
 #include "Actors/LightActor.h"
+#include "Actors/PointLightActor.h"
+#include "Actors/SpotLightActor.h"
 #include "Actors/FireballActor.h"
 
 #include "Components/LightComponent.h"
@@ -266,6 +268,7 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
             { .label= "Cube",      .obj= OBJ_CUBE },
             { .label= "Sphere",    .obj= OBJ_SPHERE },
             { .label= "PointLight", .obj= OBJ_PointLight },
+            {.label = "SpotLight",  .obj = OBJ_SpotLight },
             { .label= "Particle",  .obj= OBJ_PARTICLE },
             { .label= "Text",      .obj= OBJ_Text },
             { .label= "Fireball",  .obj = OBJ_Fireball},
@@ -298,7 +301,7 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                 }
                 case OBJ_PointLight:
                 {
-                    ALight* LightActor = World->SpawnActor<ALight>();
+                    APointLight* LightActor = World->SpawnActor<APointLight>();
                     LightActor->SetActorLabel(TEXT("OBJ_PointLight"));
                     break;
                 }
@@ -339,6 +342,11 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                     break;
                 }
                 case OBJ_SpotLight:
+                {
+                    ASpotLight* LightActor = World->SpawnActor<ASpotLight>();
+                    LightActor->SetActorLabel(TEXT("OBJ_SpotLight"));
+                    break;
+                }
                 case OBJ_TRIANGLE:
                 case OBJ_CAMERA:
                 case OBJ_PLAYER:

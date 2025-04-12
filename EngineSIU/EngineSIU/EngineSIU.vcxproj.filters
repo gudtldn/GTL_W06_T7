@@ -456,12 +456,6 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Quad.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClInclude>
-    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\QuadTexture.cpp">
-      <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
-    </ClCompile>
-    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\QuadTexture.h">
-      <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
-    </ClInclude>
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\SceneComponent.cpp">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClCompile>
@@ -486,22 +480,10 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\StaticMeshComponent.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClInclude>
-    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UBillboardComponent.cpp">
-      <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
-    </ClCompile>
-    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UBillboardComponent.h">
-      <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
-    </ClInclude>
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\ParticleSubUVComponent.cpp">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClCompile>
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\ParticleSubUVComponent.h">
-      <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
-    </ClInclude>
-    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UTextComponent.cpp">
-      <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
-    </ClCompile>
-    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\UTextComponent.h">
       <Filter>Engine\Source\Runtime\Engine\Classes\Components</Filter>
     </ClInclude>
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\UTextUUID.cpp">
@@ -808,6 +790,11 @@
     <ClCompile Include="Engine\Source\Runtime\Core\Math\Rotator.cpp">
       <Filter>Engine\Source\Runtime\Core\Math</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Engine\AssetManager.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\TextComponent.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Actors\PointLightActor.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Actors\SpotLightActor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="EngineSIU.natvis" />
@@ -873,5 +860,10 @@
     <ClInclude Include="Engine\Source\Runtime\Core\Math\Rotator.h">
       <Filter>Engine\Source\Runtime\Core\Math</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Engine\AssetManager.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\TextComponent.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Actors\PointLightActor.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Actors\SpotLightActor.h" />
   </ItemGroup>
 </Project>
