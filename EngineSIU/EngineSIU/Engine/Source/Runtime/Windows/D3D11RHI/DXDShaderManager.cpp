@@ -300,56 +300,53 @@ bool FDXDShaderManager::HandleHotReloadShader()
 
     for (auto& Ps : PixelShaders)
     {
+        FShaderFileMetadata& Data = Ps.Value.GetShaderMetadata();
         if (Ps.Value.GetShaderMetadata().IsOutdatedAndUpdateLastTime())
         {
-            FShaderFileMetadata& Data = Ps.Value.GetShaderMetadata();
-            if (Ps.Value.GetShaderMetadata().IsOutdatedAndUpdateLastTime())
+            ID3DBlob* PixelShaderCSO = nullptr;
+            ID3DBlob* ErrorBlob = nullptr;
+
+            // 셰이더 컴파일
+            FShaderIncludeHandler IncludesHandler;
+            HRESULT Hr = D3DCompileFromFile(
+                Data.FileMetadata.Key.c_str(), nullptr, &IncludesHandler, *Data.EntryPoint,
+                "ps_5_0", 0, 0, &PixelShaderCSO, &ErrorBlob
+            );
+
+            // 셰이더 컴파일 실패시
+            if (FAILED(Hr))
             {
-                ID3DBlob* PixelShaderCSO = nullptr;
-                ID3DBlob* ErrorBlob = nullptr;
-
-                // 셰이더 컴파일
-                FShaderIncludeHandler IncludesHandler;
-                HRESULT Hr = D3DCompileFromFile(
-                    Data.FileMetadata.Key.c_str(), nullptr, &IncludesHandler, *Data.EntryPoint,
-                    "ps_5_0", 0, 0, &PixelShaderCSO, &ErrorBlob
-                );
-
-                // 셰이더 컴파일 실패시
-                if (FAILED(Hr))
+                if (ErrorBlob)
                 {
-                    if (ErrorBlob)
-                    {
-                        UE_LOG(LogLevel::Error, "[Shader Hot Reload] PixelShader Compile Failed %s", static_cast<char*>(ErrorBlob->GetBufferPointer()));
-                        ErrorBlob->Release();
-                    }
-                    continue;
+                    UE_LOG(LogLevel::Error, "[Shader Hot Reload] PixelShader Compile Failed %s", static_cast<char*>(ErrorBlob->GetBufferPointer()));
+                    ErrorBlob->Release();
                 }
-
-                ID3D11PixelShader* NewPixelShader;
-                Hr = DXDDevice->CreatePixelShader(
-                    PixelShaderCSO->GetBufferPointer(),
-                    PixelShaderCSO->GetBufferSize(),
-                    nullptr, &NewPixelShader
-                );
-
-                // PS 만들기 실패시
-                if (FAILED(Hr))
-                {
-                    UE_LOG(LogLevel::Error, "[Shader Hot Reload] Failed CreatePixelShader");
-                    PixelShaderCSO->Release();
-                    continue;
-                }
-
-                // 기존 셰이더 제거
-                Ps.Value->Release();
-
-                // 새로운 셰이더 할당
-                Ps.Value = NewPixelShader;
-                Data.IncludePaths = IncludesHandler.GetIncludePaths();
-
-                PixelShaderCSO->Release();
+                continue;
             }
+
+            ID3D11PixelShader* NewPixelShader;
+            Hr = DXDDevice->CreatePixelShader(
+                PixelShaderCSO->GetBufferPointer(),
+                PixelShaderCSO->GetBufferSize(),
+                nullptr, &NewPixelShader
+            );
+
+            // PS 만들기 실패시
+            if (FAILED(Hr))
+            {
+                UE_LOG(LogLevel::Error, "[Shader Hot Reload] Failed CreatePixelShader");
+                PixelShaderCSO->Release();
+                continue;
+            }
+
+            // 기존 셰이더 제거
+            Ps.Value->Release();
+
+            // 새로운 셰이더 할당
+            Ps.Value = NewPixelShader;
+            Data.IncludePaths = IncludesHandler.GetIncludePaths();
+
+            PixelShaderCSO->Release();
             bIsHotReloadShader = true;
         }
     }
