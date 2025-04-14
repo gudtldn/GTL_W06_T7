@@ -45,6 +45,9 @@ public:
 
     HWND AppWnd;
 
+    // 셰이더 핫 리로드 관련 Flag
+    bool bIsEnableShaderHotReload = true;
+
 private:
     UImGuiManager* UIMgr;
     //TODO: GWorld 제거, Editor들 EditorEngine으로 넣기

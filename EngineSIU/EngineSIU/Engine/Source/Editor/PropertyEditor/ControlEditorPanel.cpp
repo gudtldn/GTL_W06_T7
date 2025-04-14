@@ -100,7 +100,7 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
     if (bOpenMenu)
     {
         ImGui::SetNextWindowPos(ImVec2(10, 55), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(135, 170), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(210, 205), ImGuiCond_Always);
 
         ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
@@ -163,6 +163,20 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
             }
 
             ImGui::EndMenu();
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Checkbox("Shader Hot Reload", &GEngineLoop.bIsEnableShaderHotReload))
+        {
+            if (GEngineLoop.bIsEnableShaderHotReload)
+            {
+                UE_LOG(LogLevel::Display, "[Shader Hot Reload] Shader Hot Reload Enabled");
+            }
+            else
+            {
+                UE_LOG(LogLevel::Display, "[Shader Hot Reload] Shader Hot Reload Disabled");
+            }
         }
 
         ImGui::Separator();

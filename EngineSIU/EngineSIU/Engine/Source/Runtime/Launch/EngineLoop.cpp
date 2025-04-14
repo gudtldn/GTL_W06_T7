@@ -150,8 +150,12 @@ void FEngineLoop::Tick()
         GraphicDevice.SwapBuffer();
 
 #if _DEBUG
-        Renderer.HandleHotReloadShader();
+        if (bIsEnableShaderHotReload)
+        {
+            Renderer.HandleHotReloadShader();
+        }
 #endif
+
         do
         {
             Sleep(0);
