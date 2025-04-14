@@ -73,9 +73,7 @@ void FGizmoRenderPass::CreateShader()
 
     hr = ShaderManager->AddPixelShader(L"GizmoPixelShader", L"Shaders/GizmoPixelShader.hlsl", "mainPS");
 
-    VertexShader = ShaderManager->GetVertexShaderByKey(L"GizmoVertexShader");
-
-    PixelShader = ShaderManager->GetPixelShaderByKey(L"GizmoPixelShader");
+    ReloadShader();
 
     InputLayout = ShaderManager->GetInputLayoutByKey(L"GizmoVertexShader");
 
@@ -91,6 +89,12 @@ void FGizmoRenderPass::ReleaseShader()
 void FGizmoRenderPass::ClearRenderArr()
 {
     //GizmoObjs.Empty();
+}
+
+void FGizmoRenderPass::ReloadShader()
+{
+    VertexShader = ShaderManager->GetVertexShaderByKey(L"GizmoVertexShader");
+    PixelShader = ShaderManager->GetPixelShaderByKey(L"GizmoPixelShader");
 }
 
 void FGizmoRenderPass::PrepareRenderState() const

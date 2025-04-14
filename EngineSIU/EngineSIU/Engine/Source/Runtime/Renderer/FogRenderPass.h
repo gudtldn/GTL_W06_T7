@@ -47,6 +47,8 @@ public:
 
     void CreateRTV();
 
+    void ReloadShader();
+
 private:
     ID3D11SamplerState* Sampler = nullptr;
 

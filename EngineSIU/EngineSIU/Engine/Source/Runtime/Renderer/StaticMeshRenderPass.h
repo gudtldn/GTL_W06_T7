@@ -25,12 +25,11 @@ public:
     ~FStaticMeshRenderPass();
     
     virtual void Initialize(FDXDBufferManager* InBufferManager, FGraphicsDevice* InGraphics, FDXDShaderManager* InShaderManage) override;
-    
     virtual void PrepareRender() override;
-
     virtual void Render(const std::shared_ptr<FEditorViewportClient>& Viewport) override;
-
     virtual void ClearRenderArr() override;
+
+    void ReloadShader();
 
     void PrepareRenderState() const;
     

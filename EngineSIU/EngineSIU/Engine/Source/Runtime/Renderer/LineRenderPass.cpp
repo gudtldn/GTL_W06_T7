@@ -50,13 +50,18 @@ void FLineRenderPass::ClearRenderArr()
     // 필요에 따라 내부 배열을 초기화
 }
 
+void FLineRenderPass::ReloadShader()
+{
+    VertexLineShader = ShaderManager->GetVertexShaderByKey(L"VertexLineShader");
+    PixelLineShader = ShaderManager->GetPixelShaderByKey(L"PixelLineShader");
+}
+
 void FLineRenderPass::CreateShader()
 {
     HRESULT hr = ShaderManager->AddVertexShader(L"VertexLineShader", L"Shaders/ShaderLine.hlsl", "mainVS");
     hr = ShaderManager->AddPixelShader(L"PixelLineShader", L"Shaders/ShaderLine.hlsl", "mainPS");
 
-    VertexLineShader = ShaderManager->GetVertexShaderByKey(L"VertexLineShader");
-    PixelLineShader = ShaderManager->GetPixelShaderByKey(L"PixelLineShader");
+    ReloadShader();
 }
 
 void FLineRenderPass::PrepareLineShader() const
