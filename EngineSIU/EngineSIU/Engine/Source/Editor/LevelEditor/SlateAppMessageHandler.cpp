@@ -537,6 +537,19 @@ void FSlateAppMessageHandler::OnRawMouseInput(const RAWMOUSE& RawMouseInput)
     // 눌린 버튼이 있는경우
     if (ButtonFlags)
     {
+        // 커서가 화면 안에 있는지 검사
+        RECT WindowRect;
+        ::GetWindowRect(GEngineLoop.AppWnd, &WindowRect);
+
+        POINT Pos;
+        ::GetCursorPos(&Pos);
+
+        if (!::PtInRect(&WindowRect, Pos))
+        {
+            return;
+        }
+
+
         // 마우스 왼쪽 버튼
         if (ButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
         {
@@ -550,7 +563,7 @@ void FSlateAppMessageHandler::OnRawMouseInput(const RAWMOUSE& RawMouseInput)
             EffectingButton = EKeys::LeftMouseButton;
             InputEventType = IE_Released;
         }
-
+        
         // 마우스 오른쪽 버튼
         else if (ButtonFlags & RI_MOUSE_RIGHT_BUTTON_DOWN)
         {
@@ -564,7 +577,7 @@ void FSlateAppMessageHandler::OnRawMouseInput(const RAWMOUSE& RawMouseInput)
             EffectingButton = EKeys::RightMouseButton;
             InputEventType = IE_Released;
         }
-
+        
         // 마우스 가운데 버튼
         else if (ButtonFlags & RI_MOUSE_MIDDLE_BUTTON_DOWN)
         {
@@ -578,7 +591,7 @@ void FSlateAppMessageHandler::OnRawMouseInput(const RAWMOUSE& RawMouseInput)
             EffectingButton = EKeys::MiddleMouseButton;
             InputEventType = IE_Released;
         }
-
+        
         // 마우스 엄지버튼 1
         else if (ButtonFlags & RI_MOUSE_BUTTON_4_DOWN)
         {
@@ -592,7 +605,7 @@ void FSlateAppMessageHandler::OnRawMouseInput(const RAWMOUSE& RawMouseInput)
             EffectingButton = EKeys::ThumbMouseButton;
             InputEventType = IE_Released;
         }
-
+        
         // 마우스 엄지버튼 2
         else if (ButtonFlags & RI_MOUSE_BUTTON_5_DOWN)
         {
