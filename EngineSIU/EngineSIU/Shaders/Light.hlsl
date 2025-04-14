@@ -33,7 +33,6 @@ struct LIGHT
     //float2 Pad1;
 };
 
-
 cbuffer cbLights : register(b2)
 {
     LIGHT gLights[MAX_LIGHTS];
@@ -45,20 +44,22 @@ cbuffer cbLights : register(b2)
 float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal)
 {
     float3 vToLightSource = gLights[nIndex].m_vPosition - vPosition;
-    
     float fDistanceToLight = length(vToLightSource);
     float3 vDirectionToLightSource = vToLightSource / fDistanceToLight;
+    float3 normal = normalize(vNormal);
 
-    float fSpotCosAngle = dot(-vDirectionToLightSource, gLights[nIndex].m_vDirection);
+    float fSpotCosAngle =  dot(-vDirectionToLightSource, gLights[nIndex].m_vDirection); // length(gLights[nIndex].m_vDirection);
     
-    float DistanceAttenuation = saturate(1.0f - fDistanceToLight / gLights[nIndex].m_fAttRadius);
+    
+    float DistanceAttenuation = saturate(1.0f - fDistanceToLight / (gLights[nIndex].m_fAttRadius));
     
     //float CosInnerConeAngle = cos(radians(gLights[nIndex].m_fInnerConeAngle));
     //float CosOuterConeAngle = cos(radians(gLights[nIndex].m_fOuterConeAngle));
-    float cosInnerConeAngle = cos(radians(30.0f)); // 예시: 내부 원뿔 반각 30도의 코사인
-    float cosOuterConeAngle = cos(radians(60.0f)); // 예시: 외부 원뿔 반각 60도의 코사인
+    float cosInnerConeAngle = cos(radians(30.0f/2)); // 예시: 내부 원뿔 반각 30도의 코사인
+    float cosOuterConeAngle = cos(radians(31.0f/2)); // 예시: 외부 원뿔 반각 60도의 코사인
     
     float SpotLightRatioBase = (fSpotCosAngle - cosOuterConeAngle) / (cosInnerConeAngle - cosOuterConeAngle);
+    //float SpotLightRatioBase = (fSpotCosAngle - cosInnerConeAngle) / (cosInnerConeAngle - cosOuterConeAngle);
     float SaturatedSpotLightRatioBase = saturate(SpotLightRatioBase);
     
     float SpotFalloffExponent = gLights[nIndex].m_fFalloff;
@@ -66,7 +67,7 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal)
     
     // Lambertian Diffuse 
     float3 DiffuseColorRGB = gLights[nIndex].m_cDiffuse;
-    float LambertFactor = max(0.0f, dot(vNormal, vDirectionToLightSource));
+    float LambertFactor = max(0.0f, dot(normal, vDirectionToLightSource));
     float3 DiffuseLightContribution = DiffuseColorRGB * LambertFactor;
     
     float CombinedAttenuation = DistanceAttenuation * SpotAngleAttenuation;
@@ -76,39 +77,6 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal)
     float4 FinalColor = float4(FinalDiffuseColor, 1.0f);
 
     return FinalColor; 
-}
-    
-    //// 광원과 픽셀 위치 간 벡터 계산
-    //float3 vToLight = gLights[nIndex].m_vPosition - vPosition;
-    //float fDistance = length(vToLight);
-
-    //// 감쇠 반경을 벗어나면 기여하지 않음
-    //if (fDistance > gLights[nIndex].m_fAttRadius)
-    //{
-    //    return float4(0.0f, 0.0f, 0.0f, 0.0f);
-    //}
-
-    //float fSpecularFactor = 0.0f;
-    //vToLight /= fDistance; // 정규화
-    
-    //float fDiffuseFactor = saturate(dot(vNormal, vToLight));
-
-    //if (fDiffuseFactor > 0.0f)
-    //{
-    //    float3 vView = normalize(CameraPosition - vPosition);
-    //    float3 vHalf = normalize(vToLight + vView);
-    //    fSpecularFactor = pow(max(dot(normalize(vNormal), vHalf), 0.0f), 1);
-    //}
-    
-    //float fSpotFactor = pow(max(dot(-vToLight, gLights[nIndex].m_vDirection), 0.0f), gLights[nIndex].m_fFalloff);
-    //float fAttenuationFactor = 1.0f / (1.0f + gLights[nIndex].m_fAttenuation * fDistance * fDistance);
-    
-    //float3 lit = (gcGlobalAmbientLight * Material.AmbientColor.rgb) +
-    //             (gLights[nIndex].m_cDiffuse.rgb * fDiffuseFactor * Material.DiffuseColor) +
-    //             (gLights[nIndex].m_cSpecular.rgb * fSpecularFactor * Material.SpecularColor);
-
-    //// intensity와 attenuation factor, spot factor를 곱하여 최종 색상 계산
-    //return float4(lit * fAttenuationFactor * fSpotFactor * gLights[nIndex].m_fIntensity, 1.0f);
 }
 
 float4 PointLight(int nIndex, float3 vPosition, float3 vNormal)
