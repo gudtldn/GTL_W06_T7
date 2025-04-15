@@ -1,12 +1,13 @@
 name: cpp-linter
 
 on:
-  pull_request:
-    branches: [main, master, develop]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
-  push:
-    branches: [main, master, develop]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
+#  pull_request:
+#    branches: [main, master, develop]
+#    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
+#  push:
+#    branches: [main, master, develop]
+#    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
+  workflow_dispatch:
 
 jobs:
   cpp-linter:
