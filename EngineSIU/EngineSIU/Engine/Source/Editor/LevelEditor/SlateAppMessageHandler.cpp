@@ -537,18 +537,20 @@ void FSlateAppMessageHandler::OnRawMouseInput(const RAWMOUSE& RawMouseInput)
     // 눌린 버튼이 있는경우
     if (ButtonFlags)
     {
-        // 커서가 화면 안에 있는지 검사
-        RECT WindowRect;
-        ::GetWindowRect(GEngineLoop.AppWnd, &WindowRect);
-
-        POINT Pos;
-        ::GetCursorPos(&Pos);
-
-        if (!::PtInRect(&WindowRect, Pos))
+        if (PressedMouseButtons.IsEmpty())
         {
-            return;
+            // 커서가 화면 안에 있는지 검사
+            RECT WindowRect;
+            ::GetWindowRect(GEngineLoop.AppWnd, &WindowRect);
+    
+            POINT Pos;
+            ::GetCursorPos(&Pos);
+    
+            if (!::PtInRect(&WindowRect, Pos))
+            {
+                return;
+            }
         }
-
 
         // 마우스 왼쪽 버튼
         if (ButtonFlags & RI_MOUSE_LEFT_BUTTON_DOWN)
