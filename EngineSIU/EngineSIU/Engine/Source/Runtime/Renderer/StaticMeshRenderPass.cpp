@@ -66,9 +66,7 @@ void FStaticMeshRenderPass::CreateShader()
 
     hr = ShaderManager->AddPixelShader(L"StaticMeshPixelShader", L"Shaders/StaticMeshPixelShader.hlsl", "mainPS");
 
-    VertexShader = ShaderManager->GetVertexShaderByKey(L"StaticMeshVertexShader");
-
-    PixelShader = ShaderManager->GetPixelShaderByKey(L"StaticMeshPixelShader");
+    ReloadShader();
 
     InputLayout = ShaderManager->GetInputLayoutByKey(L"StaticMeshVertexShader");
 
@@ -240,3 +238,8 @@ void FStaticMeshRenderPass::ClearRenderArr()
     StaticMeshObjs.Empty();
 }
 
+void FStaticMeshRenderPass::ReloadShader()
+{
+    VertexShader = ShaderManager->GetVertexShaderByKey(L"StaticMeshVertexShader");
+    PixelShader = ShaderManager->GetPixelShaderByKey(L"StaticMeshPixelShader");
+}

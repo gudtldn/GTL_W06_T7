@@ -99,6 +99,21 @@ void FRenderer::ReleaseConstantBuffer()
     BufferManager->ReleaseConstantBuffer();
 }
 
+bool FRenderer::HandleHotReloadShader()
+{
+    if (ShaderManager->HandleHotReloadShader())
+    {
+        StaticMeshRenderPass->ReloadShader();
+        GizmoRenderPass->ReloadShader();
+        BillboardRenderPass->ReloadShader();
+        FogRenderPass->ReloadShader();
+        LineRenderPass->ReloadShader();
+        UE_LOG(LogLevel::Display, "[Shader Hot Reload] Succeeded Shader Hot Reload");
+        return true;
+    }
+    return false;
+}
+
 void FRenderer::PrepareRender()
 {
     StaticMeshRenderPass->PrepareRender();
