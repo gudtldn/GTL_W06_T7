@@ -11,6 +11,7 @@ class FEditorViewportClient;
 
 class UPointLightComponent;
 class USpotLightComponent;
+class UAmbientLightComponent;
 
 class FUpdateLightBufferPass : public IRenderPass
 {
@@ -22,9 +23,10 @@ public:
     virtual void PrepareRender() override;
     virtual void Render(const std::shared_ptr<FEditorViewportClient>& Viewport) override;
     virtual void ClearRenderArr() override;
-    void UpdateLightBuffer(FLight Light) const;
+    void UpdateLightBuffer(FLighting Light) const;
 
 private:
+    UAmbientLightComponent* AmbientLight;
     TArray<USpotLightComponent*> SpotLights;
     TArray<UPointLightComponent*> PointLights;
 

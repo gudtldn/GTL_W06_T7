@@ -122,10 +122,17 @@ void FStaticMeshRenderPass::PrepareRenderState() const
     Graphics->DeviceContext->IASetInputLayout(InputLayout);
 
     // 상수 버퍼 바인딩 예시
-    ID3D11Buffer* PerObjectBuffer = BufferManager->GetConstantBuffer(TEXT("FPerObjectConstantBuffer"));
-    ID3D11Buffer* CameraConstantBuffer = BufferManager->GetConstantBuffer(TEXT("FCameraConstantBuffer"));
-    Graphics->DeviceContext->VSSetConstantBuffers(0, 1, &PerObjectBuffer);
-    Graphics->DeviceContext->VSSetConstantBuffers(1, 1, &CameraConstantBuffer);
+    // ID3D11Buffer* PerObjectBuffer = BufferManager->GetConstantBuffer(TEXT("FPerObjectConstantBuffer"));
+    // ID3D11Buffer* CameraConstantBuffer = BufferManager->GetConstantBuffer(TEXT("FCameraConstantBuffer"));
+    // Graphics->DeviceContext->VSSetConstantBuffers(0, 1, &PerObjectBuffer);
+    // Graphics->DeviceContext->VSSetConstantBuffers(1, 1, &CameraConstantBuffer);
+
+    TArray<FString> VSBufferKeys = {TEXT("FPerObjectConstantBuffer"),
+                                  TEXT("FCameraConstantBuffer"),
+                                  TEXT("FLightBuffer"),
+                                    TEXT("FMaterialConstants")
+    };
+    BufferManager->BindConstantBuffers(VSBufferKeys, 0, EShaderStage::Vertex);
 
     TArray<FString> PSBufferKeys = {
                                   TEXT("FCameraConstantBuffer"),
@@ -212,9 +219,7 @@ void FStaticMeshRenderPass::Render(const std::shared_ptr<FEditorViewportClient>&
         if (!Comp || !Comp->GetStaticMesh()) continue;
         
         FMatrix Model = Comp->GetWorldMatrix();
-
         FVector4 UUIDColor = Comp->EncodeUUID() / 255.0f;
-
         UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
         bool Selected = (Engine && Engine->GetSelectedActor() == Comp->GetOwner());
 

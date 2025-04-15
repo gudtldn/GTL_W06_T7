@@ -37,15 +37,11 @@ struct PS_INPUT
 PS_INPUT mainVS(VS_INPUT input)
 {
     PS_INPUT output;
-    
     output.materialIndex = input.materialIndex;
-    
+
     float4 worldPosition = mul(input.position, Model);
-    
     output.worldPos = worldPosition.xyz;
-    
     float4 viewPosition = mul(worldPosition, View);
-    
     output.position = mul(viewPosition, Projection);
     
     output.color = input.color;

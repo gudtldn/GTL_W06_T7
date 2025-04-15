@@ -1,6 +1,8 @@
 #include "Define.h"
 #include "UObject/Casts.h"
 #include "UpdateLightBufferPass.h"
+
+#include "Components/Light/AmbientLightComponent.h"
 #include "D3D11RHI/DXDBufferManager.h"
 #include "D3D11RHI/GraphicDevice.h"
 #include "D3D11RHI/DXDShaderManager.h"
@@ -39,6 +41,11 @@ void FUpdateLightBufferPass::PrepareRender()
     {
         if (iter->GetWorld() == GEngine->ActiveWorld)
         {
+            // Todo : 추후 Global Light 추가
+            if (UAmbientLightComponent* AmbientLight = Cast<UAmbientLightComponent>(iter))
+            {
+                this->AmbientLight = AmbientLight;
+            }
             if (UPointLightComponent* PointLight = Cast<UPointLightComponent>(iter))
             {
                 PointLights.Add(PointLight);
@@ -53,41 +60,66 @@ void FUpdateLightBufferPass::PrepareRender()
 
 void FUpdateLightBufferPass::Render(const std::shared_ptr<FEditorViewportClient>& Viewport)
 {
-    FLightBuffer LightBufferData = {};
-    int LightCount = 0;
+    FLighting LightBufferData = {};
 
-    LightBufferData.GlobalAmbientLight = FVector4(0.1f, 0.1f, 0.1f, 1.f);
+    // ToDo : AmbientLight, DirectionalLight 추후 생성해 세팅
+    FAmbientLightInfo AmbientLight = {};
+    AmbientLight.Color = FVector(0.2f, 0.2f, 0.25f);  // 약간 차가운 느낌의 기본 색상
+    AmbientLight.Intensity = 1.0f;                    // 기본 강도
+    LightBufferData.AmbientLight = AmbientLight;
+
+    FDirectionalLightInfo DirectionalLight = {};
+    DirectionalLight.Direction = FVector(-1.0f, -0.7f, -0.5f);  // 빛의 진행 방향 (필요에 따라 정규화할 수도 있음)
+    DirectionalLight.Color = FVector(1.0f, 1.0f, 0.95f);         // 약간 따뜻한 백색광
+    DirectionalLight.Intensity = 1.5f;
+    LightBufferData.DirectionalLight = DirectionalLight;
+    
+    int pointLightIndex = 0;
     for (auto Light : PointLights)
     {
-        if (LightCount < MAX_LIGHTS)
+        if (pointLightIndex < MAX_LIGHTS)
         {
-            LightBufferData.gLights[LightCount] = Light->GetLightInfo();
-            LightBufferData.gLights[LightCount].Position = Light->GetWorldLocation();
+            FPointLightInfo PointLight = {};
+            PointLight.Position = Light->GetWorldLocation();
+            FLinearColor DiffuseColor = Light->GetDiffuseColor();
+            PointLight.DiffuseColor = FVector(DiffuseColor.R, DiffuseColor.G, DiffuseColor.B);
+            FLinearColor SpecularColor = Light->GetSpecularColor();
+            PointLight.SpecularColor = FVector(SpecularColor.R, SpecularColor.G, SpecularColor.B);
+            PointLight.Intensity = Light->GetIntensity();
+            PointLight.m_fAttRadius = Light->GetAttenuationRadius();
+            PointLight.m_fAttenuation = Light->GetAttenuation();
 
-            LightCount++;
+            LightBufferData.PointLights[pointLightIndex] = PointLight;
+            ++pointLightIndex;
         }
     }
 
+    int spotLightIndex = 0;
     for (auto Light : SpotLights)
     {
-        if (LightCount < MAX_LIGHTS)
+        if (spotLightIndex < MAX_LIGHTS)
         {
+            FSpotLightInfo SpotLight = {};
+            SpotLight.Position = Light->GetWorldLocation();
+            SpotLight.Direction = Light->GetForwardVector();
+            FLinearColor DiffuseColor = Light->GetDiffuseColor();
+            SpotLight.DiffuseColor = FVector(DiffuseColor.R, DiffuseColor.G, DiffuseColor.B);
+            FLinearColor SpecularColor = Light->GetSpecularColor();
+            SpotLight.SpecularColor = FVector(SpecularColor.R, SpecularColor.G, SpecularColor.B);
+            SpotLight.Intensity = Light->GetIntensity();
+            SpotLight.m_fAttRadius = Light->GetAttenuationRadius();
+            SpotLight.m_fFalloff = Light->GetFalloff();
+            SpotLight.m_fAttenuation = Light->GetAttenuation();
+            
             //// 월드 변환 행렬 계산 (스케일 1로 가정)
             //FMatrix Model = JungleMath::CreateModelMatrix(Light->GetWorldLocation(), Light->GetWorldRotation(), { 1, 1, 1 });
-
             //FEngineLoop::PrimitiveDrawBatch.AddConeToBatch(Light->GetWorldLocation(), 100, Light->GetRange(), 140, {1,1,1,1}, Model);
-
             //FEngineLoop::PrimitiveDrawBatch.AddOBBToBatch(Light->GetBoundingBox(), Light->GetWorldLocation(), Model);
-            LightBufferData.gLights[LightCount] = Light->GetLightInfo();
-            LightBufferData.gLights[LightCount].Position = Light->GetWorldLocation();
-            LightBufferData.gLights[LightCount].Direction = Light->GetForwardVector();
-            LightBufferData.gLights[LightCount].Type = ELightType::SPOT_LIGHT;
+            LightBufferData.SpotLights[spotLightIndex] = SpotLight;
 
-            LightCount++;
+            spotLightIndex++;
         }
     }
-    LightBufferData.nLights = LightCount;
-
     BufferManager->UpdateConstantBuffer(TEXT("FLightBuffer"), LightBufferData);
 }
 
@@ -97,7 +129,7 @@ void FUpdateLightBufferPass::ClearRenderArr()
     SpotLights.Empty();
 }
 
-void FUpdateLightBufferPass::UpdateLightBuffer(FLight Light) const
+void FUpdateLightBufferPass::UpdateLightBuffer(FLighting Light) const
 {
 
 }

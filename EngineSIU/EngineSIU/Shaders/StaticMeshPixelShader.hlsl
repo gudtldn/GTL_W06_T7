@@ -1,4 +1,5 @@
 // staticMeshPixelShader.hlsl
+#define PIXEL_SHADER
 
 Texture2D Textures : register(t0);
 SamplerState Sampler : register(s0);
@@ -19,24 +20,7 @@ cbuffer CameraConstants : register(b1)
     float pad;
 };
 
-struct FMaterial
-{
-    float3 DiffuseColor;
-    float TransparencyScalar;
-    
-    float3 AmbientColor;
-    float DensityScalar;
-    
-    float3 SpecularColor;
-    float SpecularScalar;
-    
-    float3 EmissiveColor;
-    float MaterialPad0;
-};
-cbuffer MaterialConstants : register(b3)
-{
-    FMaterial Material;
-}
+
 cbuffer FlagConstants : register(b4)
 {
     bool IsLit;
@@ -55,8 +39,7 @@ cbuffer TextureConstants : register(b6)
     float2 TexturePad0;
 }
 
-#include "Light.hlsl"
-
+#include "UberLit.hlsl"
 
 struct PS_INPUT
 {
@@ -81,31 +64,22 @@ PS_OUTPUT mainPS(PS_INPUT input)
     PS_OUTPUT output;
     output.UUID = UUID;
 
-    // 1) 알베도 샘플링
-    float3 albedo = Textures.Sample(Sampler, input.texcoord).rgb;
-    // 2) 머티리얼 디퓨즈
-    float3 matDiffuse = Material.DiffuseColor.rgb;
-    // 3) 라이트 계산
-
-    bool hasTexture = any(albedo != float3(0, 0, 0));
+#if LIGHTING_MODEL_GOURAUD
+    output.color = input.color;
+#else
+    PixelInput uberPsInput;
+    uberPsInput.position = input.position;
+    uberPsInput.worldPos = input.worldPos;
+    uberPsInput.normal   = input.normal;
+    uberPsInput.texcoord = input.texcoord;
+    uberPsInput.color    = input.color;
     
-    float3 baseColor = hasTexture ? albedo : matDiffuse;
-
-    if (IsLit)
-    {
-        float3 lightRgb = Lighting(input.worldPos, input.normal).rgb;
-        float3 litColor = baseColor * lightRgb;
-        output.color = float4(litColor, 1);
-    }
-    else
-    {
-        output.color = float4(baseColor, 1);
-        
-    }
+    output.color = Uber_PS(uberPsInput);
+#endif
     if (isSelected)
     {
         output.color += float4(0.02, 0.02, 0.02, 1);
-
     }
+    
     return output;
 }

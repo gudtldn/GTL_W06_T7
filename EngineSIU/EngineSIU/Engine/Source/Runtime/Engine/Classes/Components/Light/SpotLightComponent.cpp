@@ -1,7 +1,7 @@
 #include "SpotLightComponent.h"
 USpotLightComponent::USpotLightComponent()
 {
-    Light.Type = ELightType::SPOT_LIGHT;
+    Type = ELightType::SPOT_LIGHT;
 }
 
 USpotLightComponent::~USpotLightComponent()
@@ -10,10 +10,10 @@ USpotLightComponent::~USpotLightComponent()
 
 FVector USpotLightComponent::GetDirection()
 {
-    return Light.Direction;
+    return Direction;
 }
 
 void USpotLightComponent::SetDirection(const FVector& dir)
 {
-    Light.Direction = dir;
+    Direction = dir;
 }

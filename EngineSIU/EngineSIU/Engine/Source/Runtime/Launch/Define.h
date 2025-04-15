@@ -278,34 +278,88 @@ enum ELightType {
     SPOT_LIGHT = 2
 };
 
-struct FLight
+// struct FLight
+// {
+//     FVector DiffuseColor;
+//     float pad1;
+//
+//     FVector SpecularColor;
+//     float pad2;
+//
+//     FVector Position;
+//     float Falloff;
+//
+//     FVector Direction;
+//     float pad3;
+//
+//     float Attenuation = 20.f;
+//     int   Enabled;
+//     int   Type;
+//     float Intensity = 1000.f;    // m_fIntensity: 광원 강도
+//     float AttRadius = 100.f;    // m_fAttRadius: 감쇠 반경
+//     FVector LightPad;
+// };
+
+// struct FLightBuffer
+// {
+//     FLight gLights[MAX_LIGHTS]{};
+//     FVector4 GlobalAmbientLight;
+//     int nLights;
+//     float    pad0, pad1, pad2;
+// };
+
+struct FAmbientLightInfo
 {
-    FVector DiffuseColor;
-    float pad1;
-
-    FVector SpecularColor;
-    float pad2;
-
-    FVector Position;
-    float Falloff;
-
-    FVector Direction;
-    float pad3;
-
-    float Attenuation = 20.f;
-    int   Enabled;
-    int   Type;
-    float Intensity = 1000.f;    // m_fIntensity: 광원 강도
-    float AttRadius = 100.f;    // m_fAttRadius: 감쇠 반경
-    FVector LightPad;
+    FVector Color;
+    float  Intensity;
 };
 
-struct FLightBuffer
+struct FDirectionalLightInfo
 {
-    FLight gLights[MAX_LIGHTS]{};
-    FVector4 GlobalAmbientLight;
-    int nLights;
-    float    pad0, pad1, pad2;
+    FVector Direction;
+    float pad0;
+    FVector Color;
+    float  Intensity;
+};
+
+struct FPointLightInfo
+{
+    FVector Position;
+    float pad0;
+    FVector DiffuseColor;
+    float pad1;
+    FVector SpecularColor;
+    float pad2;
+    float  Intensity;
+    float  m_fAttRadius;
+    float  m_fAttenuation; // 추가: 거리 기반 감쇠 계수
+    float pad3;
+};
+
+struct FSpotLightInfo
+{
+    FVector Position;
+    float  pad0;
+    FVector Direction;
+    float  pad1;
+    FVector DiffuseColor;
+    float  pad2;
+    FVector SpecularColor;
+    float  pad3;
+    float  Intensity;
+    float  m_fAttRadius;
+    float  m_fFalloff;      // 추가: 스팟라이트 감쇠 인자
+    float  m_fAttenuation;  // 추가: 거리 기반 감쇠 계수
+};
+
+#define NUM_POINT_LIGHT         4
+#define NUM_SPOT_LIGHT          4
+struct FLighting
+{
+    FAmbientLightInfo AmbientLight;
+    FDirectionalLightInfo DirectionalLight;
+    FPointLightInfo PointLights[NUM_POINT_LIGHT];
+    FSpotLightInfo SpotLights[NUM_SPOT_LIGHT];
 };
 
 
