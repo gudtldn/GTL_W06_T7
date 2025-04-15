@@ -1,20 +1,20 @@
 #include "LightComponent.h"
-#include "BillboardComponent.h"
+#include "Components/BillboardComponent.h"
 #include "UObject/Casts.h"
 
-ULightComponentBase::ULightComponentBase()
+ULightComponent::ULightComponent()
 {
     // FString name = "SpotLight";
     // SetName(name);
     InitializeLight();
 }
 
-ULightComponentBase::~ULightComponentBase()
+ULightComponent::~ULightComponent()
 {
   
 }
 
-UObject* ULightComponentBase::Duplicate(UObject* InOuter)
+UObject* ULightComponent::Duplicate(UObject* InOuter)
 {
     ThisClass* NewComponent = Cast<ThisClass>(Super::Duplicate(InOuter));
 
@@ -23,62 +23,62 @@ UObject* ULightComponentBase::Duplicate(UObject* InOuter)
     return NewComponent;
 }
 
-void ULightComponentBase::SetDiffuseColor(FLinearColor NewColor)
+void ULightComponent::SetDiffuseColor(FLinearColor NewColor)
 {
     Light.DiffuseColor = FVector(NewColor.R, NewColor.G, NewColor.B);
 }
 
-void ULightComponentBase::SetSpecularColor(FLinearColor NewColor)
+void ULightComponent::SetSpecularColor(FLinearColor NewColor)
 {
    Light.SpecularColor = FVector(NewColor.R, NewColor.G, NewColor.B);
 }
 
-void ULightComponentBase::SetAttenuation(float Attenuation)
+void ULightComponent::SetAttenuation(float Attenuation)
 {
     Light.Attenuation = Attenuation;
 }
 
-void ULightComponentBase::SetAttenuationRadius(float AttenuationRadius)
+void ULightComponent::SetAttenuationRadius(float AttenuationRadius)
 {
     Light.AttRadius = AttenuationRadius;
 }
 
-void ULightComponentBase::SetIntensity(float Intensity)
+void ULightComponent::SetIntensity(float Intensity)
 {
     Light.Intensity = Intensity;
 }
 
-void ULightComponentBase::SetFalloff(float fallOff)
+void ULightComponent::SetFalloff(float fallOff)
 {
     Light.Falloff = fallOff;
 }
 
-FLinearColor ULightComponentBase::GetDiffuseColor()
+FLinearColor ULightComponent::GetDiffuseColor()
 {
     return FLinearColor(Light.DiffuseColor.X, Light.DiffuseColor.Y, Light.DiffuseColor.Z, 1);
 }
 
-FLinearColor ULightComponentBase::GetSpecularColor()
+FLinearColor ULightComponent::GetSpecularColor()
 {
     return FLinearColor(Light.SpecularColor.X, Light.SpecularColor.Y, Light.SpecularColor.Z, 1);
 }
 
-float ULightComponentBase::GetAttenuation()
+float ULightComponent::GetAttenuation()
 {
     return Light.Attenuation;
 }
 
-float ULightComponentBase::GetAttenuationRadius()
+float ULightComponent::GetAttenuationRadius()
 {
     return Light.AttRadius;
 }
 
-float ULightComponentBase::GetFalloff()
+float ULightComponent::GetFalloff()
 {
     return Light.Falloff;
 }
 
-void ULightComponentBase::InitializeLight()
+void ULightComponent::InitializeLight()
 {  
     AABB.max = { 1.f,1.f,0.1f };
     AABB.min = { -1.f,-1.f,-0.1f };
@@ -87,12 +87,12 @@ void ULightComponentBase::InitializeLight()
     Light.Enabled = 1;
 }
 
-void ULightComponentBase::TickComponent(float DeltaTime)
+void ULightComponent::TickComponent(float DeltaTime)
 {
     Super::TickComponent(DeltaTime);
 }
 
-int ULightComponentBase::CheckRayIntersection(FVector& rayOrigin, FVector& rayDirection, float& pfNearHitDistance)
+int ULightComponent::CheckRayIntersection(FVector& rayOrigin, FVector& rayDirection, float& pfNearHitDistance)
 {
     bool res = AABB.Intersect(rayOrigin, rayDirection, pfNearHitDistance);
     return res;

@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <numbers>
 #include "Core/HAL/PlatformType.h"
 
 
@@ -38,6 +39,13 @@ struct FMath
 	[[nodiscard]] static FORCEINLINE constexpr T Abs(const T A)
 	{
 		return A < T(0) ? -A : A;
+	}
+
+    /** Returns 1, 0, or -1 depending on relation of T to 0 */
+    template< class T > 
+    static constexpr FORCEINLINE T Sign( const T A )
+	{
+        return (A > (T)0) ? (T)1 : ((A < (T)0) ? (T)-1 : (T)0);
 	}
 
 	/** A의 제곱을 구합니다. */
@@ -101,99 +109,46 @@ struct FMath
 		return DegVal * (PI_DOUBLE / 180.0);
 	}
 
-	[[nodiscard]] static FORCEINLINE double Cos(double RadVal)
-	{
-		return cos(RadVal);
-	}
+    // Returns e^Value
+    static FORCEINLINE float Exp( float Value ) { return expf(Value); }
+    static FORCEINLINE double Exp(double Value) { return exp(Value); }
 
-	[[nodiscard]] static FORCEINLINE float Cos(float RadVal)
-	{
-		return cosf(RadVal);
-	}
+    // Returns 2^Value
+    static FORCEINLINE float Exp2( float Value ) { return powf(2.f, Value); /*exp2f(Value);*/ }
+    static FORCEINLINE double Exp2(double Value) { return pow(2.0, Value); /*exp2(Value);*/ }
 
-	[[nodiscard]] static FORCEINLINE double Sin(double RadVal)
-	{
-		return sin(RadVal);
-	}
+    static FORCEINLINE float Loge( float Value ) {	return logf(Value); }
+    static FORCEINLINE double Loge(double Value) { return log(Value); }
 
-	[[nodiscard]] static FORCEINLINE float Sin(float RadVal)
-	{
-		return sinf(RadVal);
-	}
+    static FORCEINLINE float LogX( float Base, float Value ) { return Loge(Value) / Loge(Base); }
+    static FORCEINLINE double LogX(double Base, double Value) { return Loge(Value) / Loge(Base); }
 
-	[[nodiscard]] static FORCEINLINE double Tan(double RadVal)
-	{
-		return tan(RadVal);
-	}
+    // 1.0 / Loge(2) = 1.4426950f
+    static FORCEINLINE float Log2( float Value ) { return Loge(Value) * std::numbers::log2e_v<float>; }	
+    // 1.0 / Loge(2) = 1.442695040888963387
+    static FORCEINLINE double Log2(double Value) { return Loge(Value) * std::numbers::log2e; }
 
-	[[nodiscard]] static FORCEINLINE float Tan(float RadVal)
-	{
-		return tanf(RadVal);
-	}
 
-	[[nodiscard]] static FORCEINLINE double Acos(double Value)
-	{
-		return acos(Value);
-	}
+	[[nodiscard]] static FORCEINLINE double Cos(double RadVal) { return cos(RadVal); }
+	[[nodiscard]] static FORCEINLINE float Cos(float RadVal) { return cosf(RadVal); }
 
-	[[nodiscard]] static FORCEINLINE float Acos(float Value)
-	{
-		return acosf(Value);
-	}
+	[[nodiscard]] static FORCEINLINE double Sin(double RadVal) { return sin(RadVal); }
+	[[nodiscard]] static FORCEINLINE float Sin(float RadVal) { return sinf(RadVal); }
 
-	[[nodiscard]] static FORCEINLINE double Asin(double Value)
-	{
-		return asin(Value);
-	}
+	[[nodiscard]] static FORCEINLINE double Tan(double RadVal) { return tan(RadVal); }
+	[[nodiscard]] static FORCEINLINE float Tan(float RadVal) { return tanf(RadVal); }
 
-	[[nodiscard]] static FORCEINLINE float Asin(float Value)
-	{
-		return asinf(Value);
-	}
+	[[nodiscard]] static FORCEINLINE double Acos(double Value) { return acos(Value); }
+	[[nodiscard]] static FORCEINLINE float Acos(float Value) { return acosf(Value); }
 
-	[[nodiscard]] static FORCEINLINE double Atan(double Value)
-	{
-		return atan(Value);
-	}
+	[[nodiscard]] static FORCEINLINE double Asin(double Value) { return asin(Value); }
+	[[nodiscard]] static FORCEINLINE float Asin(float Value) { return asinf(Value); }
 
-	[[nodiscard]] static FORCEINLINE float Atan(float Value)
-	{
-		return atanf(Value);
-	}
+	[[nodiscard]] static FORCEINLINE double Atan(double Value) { return atan(Value); }
+	[[nodiscard]] static FORCEINLINE float Atan(float Value) { return atanf(Value); }
 
-	[[nodiscard]] static FORCEINLINE double Atan2(double Y, double X)
-	{
-		return atan2(Y, X);
-	}
-
-	[[nodiscard]] static FORCEINLINE float Atan2(float Y, float X)
-	{
-		return atan2f(Y, X);
-	}
-
-	template <typename T>
-	[[nodiscard]] static FORCEINLINE T Square(T Value)
-	{
-		return Value * Value;
-	}
-
-	template <typename T>
-	[[nodiscard]] static FORCEINLINE int32 CeilToInt(T Value)
-	{
-		return static_cast<int32>(ceil(Value));
-	}
-
-	/** float 타입을 위한 특수화된 버전 */
-	[[nodiscard]] static FORCEINLINE int32 CeilToInt(float Value)
-	{
-		return static_cast<int32>(ceilf(Value));
-	}
-
-	/** double 타입을 위한 특수화된 버전 */
-	[[nodiscard]] static FORCEINLINE int32 CeilToInt(double Value)
-	{
-		return static_cast<int32>(ceil(Value));
-	}
+	[[nodiscard]] static FORCEINLINE double Atan2(double Y, double X) { return atan2(Y, X); }
+	[[nodiscard]] static FORCEINLINE float Atan2(float Y, float X) { return atan2f(Y, X); }
 
 	static FORCEINLINE void SinCos(float* ScalarSin, float* ScalarCos, float Value)
 	{
@@ -206,6 +161,17 @@ struct FMath
 		*ScalarSin = sin(Value);
 		*ScalarCos = cos(Value);
 	}
+
+    template <typename T>
+	[[nodiscard]] static FORCEINLINE T Square(T Value) { return Value * Value; }
+
+
+	[[nodiscard]] static FORCEINLINE int32 CeilToInt(float Value) { return static_cast<int32>(ceilf(Value)); }
+	[[nodiscard]] static FORCEINLINE int32 CeilToInt(double Value) { return static_cast<int32>(ceil(Value)); }
+
+    template <typename T>
+    [[nodiscard]] static FORCEINLINE int32 CeilToInt(T Value) { return static_cast<int32>(ceil(Value)); }
+
 
 	[[nodiscard]] static FORCEINLINE float UnwindDegrees(float A)
 	{

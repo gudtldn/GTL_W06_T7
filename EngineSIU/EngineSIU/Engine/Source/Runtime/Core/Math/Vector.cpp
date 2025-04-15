@@ -1,5 +1,8 @@
 ﻿#include "Vector.h"
 
+const FVector2D FVector2D::ZeroVector = FVector2D(0, 0);
+const FVector2D FVector2D::OneVector = FVector2D(1, 1);
+
 const FVector FVector::ZeroVector = FVector(0, 0, 0);
 const FVector FVector::OneVector = FVector(1, 1, 1);
 

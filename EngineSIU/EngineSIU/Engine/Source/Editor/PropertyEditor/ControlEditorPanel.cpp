@@ -8,9 +8,9 @@
 #include "Actors/SpotLightActor.h"
 #include "Actors/FireballActor.h"
 
-#include "Components/LightComponent.h"
-#include "Components/PointLightComponent.h"
-#include "Components/SpotLightComponent.h"
+#include "Components/Light/LightComponent.h"
+#include "Components/Light/PointLightComponent.h"
+#include "Components/Light/SpotLightComponent.h"
 #include "Components/SphereComp.h"
 #include "Components/ParticleSubUVComponent.h"
 #include "Components/TextComponent.h"
@@ -102,7 +102,7 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
     if (bOpenMenu)
     {
         ImGui::SetNextWindowPos(ImVec2(10, 55), ImGuiCond_Always);
-        ImGui::SetNextWindowSize(ImVec2(135, 170), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(ImVec2(210, 205), ImGuiCond_Always);
 
         ImGui::Begin("Menu", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove);
 
@@ -165,6 +165,20 @@ void ControlEditorPanel::CreateMenuButton(ImVec2 ButtonSize, ImFont* IconFont)
             }
 
             ImGui::EndMenu();
+        }
+
+        ImGui::Separator();
+
+        if (ImGui::Checkbox("Shader Hot Reload", &GEngineLoop.bIsEnableShaderHotReload))
+        {
+            if (GEngineLoop.bIsEnableShaderHotReload)
+            {
+                UE_LOG(LogLevel::Display, "[Shader Hot Reload] Shader Hot Reload Enabled");
+            }
+            else
+            {
+                UE_LOG(LogLevel::Display, "[Shader Hot Reload] Shader Hot Reload Disabled");
+            }
         }
 
         ImGui::Separator();
@@ -400,7 +414,11 @@ void ControlEditorPanel::CreateFlagButton() const
     ImGui::SameLine();
 
     const char* ViewModeNames[] = { "Lit", "Unlit", "Wireframe", "SceneDepth" };
-    FString ViewModeControl = ViewModeNames[(int)ActiveViewport->GetViewMode()];
+    
+    int rawViewMode = (int)ActiveViewport->GetViewMode();
+    int safeIndex = (rawViewMode >= 0) ? (rawViewMode % 4) : 0;
+    FString ViewModeControl = ViewModeNames[safeIndex];
+
     ImVec2 ViewModeTextSize = ImGui::CalcTextSize(GetData(ViewModeControl));
 
     if (ImGui::Button(GetData(ViewModeControl), ImVec2(30 + ViewModeTextSize.x, 32)))

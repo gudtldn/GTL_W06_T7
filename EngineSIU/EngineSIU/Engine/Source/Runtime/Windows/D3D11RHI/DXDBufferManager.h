@@ -8,6 +8,7 @@
 #include "Container/Map.h"
 #include "Engine/Texture.h"
 #include "GraphicDevice.h"
+#include "UserInterface/Console.h"
 
 // ShaderStage 열거형
 enum class EShaderStage

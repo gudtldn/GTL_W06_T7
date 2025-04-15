@@ -23,6 +23,8 @@ public:
     virtual void Render(const std::shared_ptr<FEditorViewportClient>& Viewport) override;
     virtual void ClearRenderArr() override;
 
+    void ReloadShader();
+
     // 라인 렌더링 전용 함수
     void CreateShader();
     void PrepareLineShader() const;

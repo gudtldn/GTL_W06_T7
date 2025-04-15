@@ -5,7 +5,7 @@ void FViewport::Initialize()
 {
 }
 
-void FViewport::ResizeViewport(const DXGI_SWAP_CHAIN_DESC& swapchaindesc)
+void FViewport::InitializeViewport(const DXGI_SWAP_CHAIN_DESC& swapchaindesc)
 {
     float width = (float)swapchaindesc.BufferDesc.Width;
     float height = (float)swapchaindesc.BufferDesc.Height;

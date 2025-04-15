@@ -1,94 +1,17 @@
 #include "EngineLoop.h"
 #include "ImGuiManager.h"
 #include "UnrealClient.h"
-#include "World/World.h"
-#include "Camera/CameraComponent.h"
+#include "D3D11RHI/GraphicDevice.h"
+#include "Engine/EditorEngine.h"
 #include "LevelEditor/SLevelEditor.h"
 #include "PropertyEditor/ViewportTypePanel.h"
 #include "Slate/Widgets/Layout/SSplitter.h"
 #include "UnrealEd/EditorViewportClient.h"
 #include "UnrealEd/UnrealEd.h"
-#include "D3D11RHI/GraphicDevice.h"
-
-#include "Engine/EditorEngine.h"
+#include "World/World.h"
 
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
-
-static LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-    if (ImGui_ImplWin32_WndProcHandler(hWnd, message, wParam, lParam))
-    {
-        return true;
-    }
-    int zDelta;
-    switch (message)
-    {
-    case WM_DESTROY:
-        PostQuitMessage(0);
-        break;
-    case WM_SIZE:
-        if (wParam != SIZE_MINIMIZED)
-        {
-            //UGraphicsDevice 객체의 OnResize 함수 호출
-            if (FEngineLoop::GraphicDevice.SwapChain)
-            {
-                FEngineLoop::GraphicDevice.OnResize(hWnd);
-            }
-            for (int i = 0; i < 4; i++)
-            {
-                if (GEngineLoop.GetLevelEditor())
-                {
-                    if (GEngineLoop.GetLevelEditor()->GetViewports()[i])
-                    {
-                        GEngineLoop.GetLevelEditor()->GetViewports()[i]->ResizeViewport(FEngineLoop::GraphicDevice.SwapchainDesc);
-                    }
-                }
-            }
-        }
-        Console::GetInstance().OnResize(hWnd);
-        // ControlPanel::GetInstance().OnResize(hWnd);
-        // PropertyPanel::GetInstance().OnResize(hWnd);
-        // Outliner::GetInstance().OnResize(hWnd);
-        // ViewModeDropdown::GetInstance().OnResize(hWnd);
-        // ShowFlags::GetInstance().OnResize(hWnd);
-        if (GEngineLoop.GetUnrealEditor())
-        {
-            GEngineLoop.GetUnrealEditor()->OnResize(hWnd);
-        }
-        ViewportTypePanel::GetInstance().OnResize(hWnd);
-        break;
-    case WM_MOUSEWHEEL:
-        if (ImGui::GetIO().WantCaptureMouse)
-            return 0;
-        zDelta = GET_WHEEL_DELTA_WPARAM(wParam); // 휠 회전 값 (+120 / -120)
-        if (GEngineLoop.GetLevelEditor())
-        {
-            if (GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->IsPerspective())
-            {
-                if (GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->GetIsOnRBMouseClick())
-                {
-                    GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->SetCameraSpeedScalar(
-                        static_cast<float>(GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->GetCameraSpeedScalar() + zDelta * 0.01)
-                    );
-                }
-                else
-                {
-                    GEngineLoop.GetLevelEditor()->GetActiveViewportClient()->CameraMoveForward(zDelta * 0.1f);
-                }
-            }
-            else
-            {
-                FEditorViewportClient::SetOthoSize(-zDelta * 0.01f);
-            }
-        }
-        break;
-    default:
-        return DefWindowProc(hWnd, message, wParam, lParam);
-    }
-
-    return 0;
-}
 
 FGraphicsDevice FEngineLoop::GraphicDevice;
 FRenderer FEngineLoop::Renderer;
@@ -98,10 +21,11 @@ uint32 FEngineLoop::TotalAllocationBytes = 0;
 uint32 FEngineLoop::TotalAllocationCount = 0;
 
 FEngineLoop::FEngineLoop()
-    : hWnd(nullptr)
+    : AppWnd(nullptr)
     , UIMgr(nullptr)
     , LevelEditor(nullptr)
     , UnrealEditor(nullptr)
+    , bufferManager(nullptr)
 {
 }
 
@@ -121,11 +45,13 @@ int32 FEngineLoop::Init(HINSTANCE hInstance)
 
     UIMgr = new UImGuiManager;
 
+    AppMessageHandler = std::make_unique<FSlateAppMessageHandler>();
+
     LevelEditor = new SLevelEditor();
 
     UnrealEditor->Initialize();
 
-    GraphicDevice.Initialize(hWnd);
+    GraphicDevice.Initialize(AppWnd);
 
     bufferManager->Initialize(GraphicDevice.Device, GraphicDevice.DeviceContext);
 
@@ -133,7 +59,7 @@ int32 FEngineLoop::Init(HINSTANCE hInstance)
 
     PrimitiveDrawBatch.Initialize(&GraphicDevice);
 
-    UIMgr->Initialize(hWnd, GraphicDevice.Device, GraphicDevice.DeviceContext);
+    UIMgr->Initialize(AppWnd, GraphicDevice.Device, GraphicDevice.DeviceContext);
 
     ResourceManager.Initialize(&Renderer, &GraphicDevice);
 
@@ -208,7 +134,6 @@ void FEngineLoop::Tick()
 
         float DeltaTime = elapsedTime / 1000.f;
 
-        Input();
         GEngine->Tick(DeltaTime);
         LevelEditor->Tick(DeltaTime);
         Render();
@@ -223,6 +148,14 @@ void FEngineLoop::Tick()
         GUObjectArray.ProcessPendingDestroyObjects();
 
         GraphicDevice.SwapBuffer();
+
+#if _DEBUG
+        if (bIsEnableShaderHotReload)
+        {
+            Renderer.HandleHotReloadShader();
+        }
+#endif
+
         do
         {
             Sleep(0);
@@ -237,27 +170,6 @@ float FEngineLoop::GetAspectRatio(IDXGISwapChain* swapChain) const
     DXGI_SWAP_CHAIN_DESC desc;
     swapChain->GetDesc(&desc);
     return static_cast<float>(desc.BufferDesc.Width) / static_cast<float>(desc.BufferDesc.Height);
-}
-
-void FEngineLoop::Input()
-{
-    if (GetAsyncKeyState('M') & 0x8000)
-    {
-        if (!bTestInput)
-        {
-            bTestInput = true;
-            if (LevelEditor->IsMultiViewport())
-            {
-                LevelEditor->OffMultiViewport();
-            }
-            else
-                LevelEditor->OnMultiViewport();
-        }
-    }
-    else
-    {
-        bTestInput = false;
-    }
 }
 
 void FEngineLoop::Exit()
@@ -278,15 +190,59 @@ void FEngineLoop::WindowInit(HINSTANCE hInstance)
     WCHAR Title[] = L"Game Tech Lab";
 
     WNDCLASSW wndclass{};
-    wndclass.lpfnWndProc = WndProc;
+    wndclass.lpfnWndProc = AppWndProc;
     wndclass.hInstance = hInstance;
     wndclass.lpszClassName = WindowClass;
+    wndclass.style = CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
 
     RegisterClassW(&wndclass);
 
-    hWnd = CreateWindowExW(
+    AppWnd = CreateWindowExW(
         0, WindowClass, Title, WS_POPUP | WS_VISIBLE | WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 1000, 1000,
         nullptr, nullptr, hInstance, nullptr
     );
+}
+
+LRESULT CALLBACK FEngineLoop::AppWndProc(HWND hWnd, uint32 Msg, WPARAM wParam, LPARAM lParam)
+{
+    if (ImGui_ImplWin32_WndProcHandler(hWnd, Msg, wParam, lParam))
+    {
+        return true;
+    }
+
+    switch (Msg)
+    {
+    case WM_DESTROY:
+        PostQuitMessage(0);
+        break;
+    case WM_SIZE:
+        if (wParam != SIZE_MINIMIZED)
+        {
+            auto LevelEditor = GEngineLoop.GetLevelEditor();
+            if (LevelEditor)
+            {
+                FEngineLoop::GraphicDevice.OnResize(hWnd);
+                //UGraphicsDevice 객체의 OnResize 함수 호출
+                LevelEditor->ResizeLevelEditor();
+            }
+        }
+        Console::GetInstance().OnResize(hWnd);
+        // ControlPanel::GetInstance().OnResize(hWnd);
+        // PropertyPanel::GetInstance().OnResize(hWnd);
+        // Outliner::GetInstance().OnResize(hWnd);
+        // ViewModeDropdown::GetInstance().OnResize(hWnd);
+        // ShowFlags::GetInstance().OnResize(hWnd);
+        if (GEngineLoop.GetUnrealEditor())
+        {
+            GEngineLoop.GetUnrealEditor()->OnResize(hWnd);
+        }
+        ViewportTypePanel::GetInstance().OnResize(hWnd);
+        break;
+    default:
+        GEngineLoop.AppMessageHandler->ProcessMessage(hWnd, Msg, wParam, lParam);
+        return DefWindowProc(hWnd, Msg, wParam, lParam);
+    }
+
+    return 0;
 }

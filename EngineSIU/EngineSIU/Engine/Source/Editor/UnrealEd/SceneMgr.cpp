@@ -5,7 +5,7 @@
 #include "BaseGizmos/GizmoArrowComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CubeComp.h"
-#include "Components/LightComponent.h"
+#include "Components/Light/LightComponent.h"
 #include "Components/SkySphereComponent.h"
 #include "Components/SphereComp.h"
 #include "Components/BillboardComponent.h"
@@ -54,9 +54,9 @@ SceneData FSceneMgr::ParseSceneData(const FString& jsonStr)
                 {
                     obj = FObjectFactory::ConstructObject<UBillboardComponent>(GEngine->ActiveWorld);
                 }
-                else if (TypeName == ULightComponentBase::StaticClass()->GetName())
+                else if (TypeName == ULightComponent::StaticClass()->GetName())
                 {
-                    obj = FObjectFactory::ConstructObject<ULightComponentBase>(GEngine->ActiveWorld);
+                    obj = FObjectFactory::ConstructObject<ULightComponent>(GEngine->ActiveWorld);
                 }
                 else if (TypeName == USkySphereComponent::StaticClass()->GetName())
                 {
@@ -89,28 +89,28 @@ SceneData FSceneMgr::ParseSceneData(const FString& jsonStr)
             sceneData.Primitives[id] = sceneComp;
         }
 
-        auto perspectiveCamera = j["PerspectiveCamera"];
-        for (auto it = perspectiveCamera.begin(); it != perspectiveCamera.end(); ++it) {
-            int id = std::stoi(it.key());  // Key는 문자열, 숫자로 변환
-            const json& value = it.value();
-            UObject* obj = FObjectFactory::ConstructObject<UCameraComponent>(nullptr);
-            UCameraComponent* camera = Cast<UCameraComponent>(obj);
-            if (value.contains("Location")) camera->SetRelativeLocation(FVector(value["Location"].get<std::vector<float>>()[0],
-                    value["Location"].get<std::vector<float>>()[1],
-                    value["Location"].get<std::vector<float>>()[2]));
-            if (value.contains("Rotation")) camera->SetRelativeRotation(FVector(value["Rotation"].get<std::vector<float>>()[0],
-                                                                                value["Rotation"].get<std::vector<float>>()[1],
-                                                                                value["Rotation"].get<std::vector<float>>()[2]));
-            if (value.contains("Rotation")) camera->SetRelativeRotation(FVector(value["Rotation"].get<std::vector<float>>()[0],
-                                                                                value["Rotation"].get<std::vector<float>>()[1],
-                                                                                value["Rotation"].get<std::vector<float>>()[2]));
-            if (value.contains("FOV")) camera->SetFOV(value["FOV"].get<float>());
-            if (value.contains("NearClip")) camera->SetNearClip(value["NearClip"].get<float>());
-            if (value.contains("FarClip")) camera->SetNearClip(value["FarClip"].get<float>());
-            
-            
-            sceneData.Cameras[id] = camera;
-        }
+        // auto perspectiveCamera = j["PerspectiveCamera"];
+        // for (auto it = perspectiveCamera.begin(); it != perspectiveCamera.end(); ++it) {
+        //     int id = std::stoi(it.key());  // Key는 문자열, 숫자로 변환
+        //     const json& value = it.value();
+        //     UObject* obj = FObjectFactory::ConstructObject<UCameraComponent>(nullptr);
+        //     UCameraComponent* camera = Cast<UCameraComponent>(obj);
+        //     if (value.contains("Location")) camera->SetRelativeLocation(FVector(value["Location"].get<std::vector<float>>()[0],
+        //             value["Location"].get<std::vector<float>>()[1],
+        //             value["Location"].get<std::vector<float>>()[2]));
+        //     if (value.contains("Rotation")) camera->SetRelativeRotation(FVector(value["Rotation"].get<std::vector<float>>()[0],
+        //                                                                         value["Rotation"].get<std::vector<float>>()[1],
+        //                                                                         value["Rotation"].get<std::vector<float>>()[2]));
+        //     if (value.contains("Rotation")) camera->SetRelativeRotation(FVector(value["Rotation"].get<std::vector<float>>()[0],
+        //                                                                         value["Rotation"].get<std::vector<float>>()[1],
+        //                                                                         value["Rotation"].get<std::vector<float>>()[2]));
+        //     if (value.contains("FOV")) camera->SetFOV(value["FOV"].get<float>());
+        //     if (value.contains("NearClip")) camera->SetNearClip(value["NearClip"].get<float>());
+        //     if (value.contains("FarClip")) camera->SetNearClip(value["FarClip"].get<float>());
+        //     
+        //     
+        //     sceneData.Cameras[id] = camera;
+        // }
     }
     catch (const std::exception& e) {
         FString errorMessage = "Error parsing JSON: ";
@@ -173,25 +173,24 @@ std::string FSceneMgr::SerializeSceneData(const SceneData& sceneData)
         };
     }
 
-    for (const auto& [id, camera] : sceneData.Cameras)
-    {
-        UCameraComponent* cameraComponent = static_cast<UCameraComponent*>(camera);
-        TArray<float> Location = { cameraComponent->GetWorldLocation().X, cameraComponent->GetWorldLocation().Y, cameraComponent->GetWorldLocation().Z };
-        TArray<float> Rotation = { 0.0f, cameraComponent->GetWorldRotation().Pitch, cameraComponent->GetWorldRotation().Yaw };
-        float FOV = cameraComponent->GetFOV();
-        float nearClip = cameraComponent->GetNearClip();
-        float farClip = cameraComponent->GetFarClip();
-    
-        //
-        j["PerspectiveCamera"][std::to_string(id)] = {
-            {"Location", Location},
-            {"Rotation", Rotation},
-            {"FOV", FOV},
-            {"NearClip", nearClip},
-            {"FarClip", farClip}
-        };
-    }
-
+    // for (const auto& [id, camera] : sceneData.Cameras)
+    // {
+    //     UCameraComponent* cameraComponent = static_cast<UCameraComponent*>(camera);
+    //     TArray<float> Location = { cameraComponent->GetWorldLocation().X, cameraComponent->GetWorldLocation().Y, cameraComponent->GetWorldLocation().Z };
+    //     TArray<float> Rotation = { 0.0f, cameraComponent->GetWorldRotation().Pitch, cameraComponent->GetWorldRotation().Yaw };
+    //     float FOV = cameraComponent->GetFOV();
+    //     float nearClip = cameraComponent->GetNearClip();
+    //     float farClip = cameraComponent->GetFarClip();
+    //
+    //     //
+    //     j["PerspectiveCamera"][std::to_string(id)] = {
+    //         {"Location", Location},
+    //         {"Rotation", Rotation},
+    //         {"FOV", FOV},
+    //         {"NearClip", nearClip},
+    //         {"FarClip", farClip}
+    //     };
+    // }
 
     return j.dump(4); // 4는 들여쓰기 수준
 }

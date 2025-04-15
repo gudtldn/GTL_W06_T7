@@ -1,7 +1,7 @@
 #include "FireballActor.h"
 #include "Engine/FLoaderOBJ.h"
 
-#include "Components/PointLightComponent.h"
+#include "Components/Light/PointLightComponent.h"
 
 #include "Components/ProjectileMovementComponent.h"
 

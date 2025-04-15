@@ -4,13 +4,10 @@
 #include "D3D11RHI/DXDBufferManager.h"
 #include "D3D11RHI/GraphicDevice.h"
 #include "D3D11RHI/DXDShaderManager.h"
-#include "Components/LightComponent.h"
-#include "Components/PointLightComponent.h"
-#include "Components/SpotLightComponent.h"
-#include "Math/JungleMath.h"
+#include "Components/Light/LightComponent.h"
+#include "Components/Light/PointLightComponent.h"
+#include "Components/Light/SpotLightComponent.h"
 #include "Engine/EditorEngine.h"
-#include "World/World.h"
-#include "EngineLoop.h"
 #include "GameFramework/Actor.h"
 
 #include "UObject/UObjectIterator.h"
@@ -38,7 +35,7 @@ void FUpdateLightBufferPass::Initialize(FDXDBufferManager* InBufferManager, FGra
 
 void FUpdateLightBufferPass::PrepareRender()
 {
-    for (const auto iter : TObjectRange<ULightComponentBase>())
+    for (const auto iter : TObjectRange<ULightComponent>())
     {
         if (iter->GetWorld() == GEngine->ActiveWorld)
         {

@@ -6,7 +6,7 @@
 #include "BaseGizmos/GizmoCircleComponent.h"
 #include "BaseGizmos/TransformGizmo.h"
 #include "Camera/CameraComponent.h"
-#include "Components/LightComponent.h"
+#include "Components/Light/LightComponent.h"
 #include "LevelEditor/SLevelEditor.h"
 #include "Math/JungleMath.h"
 #include "Math/MathUtility.h"
@@ -44,7 +44,7 @@ void AEditorPlayer::Input()
 
                 UE_LOG(LogLevel::Display, *obj->GetName());
             }
-            ScreenToClient(GEngineLoop.hWnd, &mousePos);
+            ScreenToClient(GEngineLoop.AppWnd, &mousePos);
 
             FVector pickPosition;
 
@@ -65,62 +65,6 @@ void AEditorPlayer::Input()
             bLeftMouseDown = false;
             std::shared_ptr<FEditorViewportClient> ActiveViewport = GEngineLoop.GetLevelEditor()->GetActiveViewportClient();
             ActiveViewport->SetPickedGizmoComponent(nullptr);
-        }
-    }
-    if (GetAsyncKeyState(VK_SPACE) & 0x8000)
-    {
-        if (!bSpaceDown)
-        {
-            AddControlMode();
-            bSpaceDown = true;
-        }
-    }
-    else
-    {
-        if (bSpaceDown)
-        {
-            bSpaceDown = false;
-        }
-    }
-    if (GetAsyncKeyState(VK_RBUTTON) & 0x8000)
-    {
-        if (!bRightMouseDown)
-        {
-            bRightMouseDown = true;
-        }
-    }
-    else
-    {
-        bRightMouseDown = false;
-
-        if (GetAsyncKeyState('Q') & 0x8000)
-        {
-            //GetWorld()->SetPickingObj(nullptr);
-        }
-        if (GetAsyncKeyState('W') & 0x8000)
-        {
-            cMode = CM_TRANSLATION;
-        }
-        if (GetAsyncKeyState('E') & 0x8000)
-        {
-            cMode = CM_ROTATION;
-        }
-        if (GetAsyncKeyState('R') & 0x8000)
-        {
-            cMode = CM_SCALE;
-        }
-    }
-
-    if (GetAsyncKeyState(VK_DELETE) & 0x8000)
-    {
-        UEditorEngine* Engine = Cast<UEditorEngine>(GEngine);
-        if (Engine)
-        {
-            if (AActor* SelectedActor = Engine->GetSelectedActor())
-            {
-                Engine->DeselectActor(SelectedActor);
-                GEngine->ActiveWorld->DestroyActor(SelectedActor);
-            }
         }
     }
 }
@@ -193,7 +137,7 @@ void AEditorPlayer::PickActor(const FVector& pickPosition)
     for (const auto iter : TObjectRange<UPrimitiveComponent>())
     {
         UPrimitiveComponent* pObj;
-        if (iter->IsA<UPrimitiveComponent>() || iter->IsA<ULightComponentBase>())
+        if (iter->IsA<UPrimitiveComponent>() || iter->IsA<ULightComponent>())
         {
             pObj = static_cast<UPrimitiveComponent*>(iter);
         }
@@ -294,6 +238,21 @@ int AEditorPlayer::RayIntersectsObject(const FVector& pickPosition, USceneCompon
         FVector rayDirection = (transformedPick - pickRayOrigin).GetSafeNormal();
         
         intersectCount = obj->CheckRayIntersection(pickRayOrigin, rayDirection, hitDistance);
+
+        if (intersectCount > 0)
+        {
+            FVector LocalHitPoint = pickRayOrigin + rayDirection * hitDistance;
+
+            FVector WorldHitPoint = WorldMatrix.TransformPosition(LocalHitPoint);
+
+            FVector WorldRayOrigin;
+            FMatrix InverseView = FMatrix::Inverse(ViewMatrix);
+            WorldRayOrigin = InverseView.TransformPosition(cameraOrigin);
+
+            float WorldDistance = FVector::Distance(WorldRayOrigin, WorldHitPoint);
+
+            hitDistance = WorldDistance;
+        }
         return intersectCount;
     }
 }

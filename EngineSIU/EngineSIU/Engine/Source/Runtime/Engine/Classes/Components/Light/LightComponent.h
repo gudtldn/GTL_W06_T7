@@ -1,15 +1,15 @@
 #pragma once
-#include "PrimitiveComponent.h"
+#include "LightComponentBase.h"
 #include "Define.h"
 class UBillboardComponent;
 
-class ULightComponentBase : public USceneComponent
+class ULightComponent : public ULightComponentBase
 {
-    DECLARE_CLASS(ULightComponentBase, USceneComponent)
+    DECLARE_CLASS(ULightComponent, ULightComponentBase)
 
 public:
-    ULightComponentBase();
-    virtual ~ULightComponentBase() override;
+    ULightComponent();
+    virtual ~ULightComponent() override;
     virtual UObject* Duplicate(UObject* InOuter) override;
 
     virtual void TickComponent(float DeltaTime) override;
@@ -32,7 +32,6 @@ public:
 protected:
 
     FBoundingBox AABB;
-   
     FLight Light;
 
 public:

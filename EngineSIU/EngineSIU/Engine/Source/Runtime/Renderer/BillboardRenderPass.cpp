@@ -123,8 +123,7 @@ void FBillboardRenderPass::CreateShader()
 
     hr = ShaderManager->AddPixelShader(L"PixelBillboardShader", L"Shaders/PixelBillboardShader.hlsl", "main");
 
-    VertexShader = ShaderManager->GetVertexShaderByKey(L"VertexBillboardShader");
-    PixelShader = ShaderManager->GetPixelShaderByKey(L"PixelBillboardShader");
+    ReloadShader();
     InputLayout = ShaderManager->GetInputLayoutByKey(L"VertexBillboardShader");
 }
 
@@ -197,4 +196,10 @@ void FBillboardRenderPass::SetupVertexBuffer(ID3D11Buffer* pVertexBuffer, UINT n
 void FBillboardRenderPass::ClearRenderArr()
 {
     BillboardObjs.Empty();
+}
+
+void FBillboardRenderPass::ReloadShader()
+{
+    VertexShader = ShaderManager->GetVertexShaderByKey(L"VertexBillboardShader");
+    PixelShader = ShaderManager->GetPixelShaderByKey(L"PixelBillboardShader");
 }
