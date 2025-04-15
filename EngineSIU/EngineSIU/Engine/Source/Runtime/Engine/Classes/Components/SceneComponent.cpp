@@ -53,7 +53,7 @@ void USceneComponent::DestroyComponent()
 
 FVector USceneComponent::GetForwardVector()
 {
-    FVector Forward = FVector(GetWorldMatrix()[0][0], GetWorldMatrix()[1][0], GetWorldMatrix()[2][0]);
+    FVector Forward = FVector(GetWorldMatrix()[0][0], GetWorldMatrix()[0][1], GetWorldMatrix()[0][2]);
 	return Forward;
 }
 

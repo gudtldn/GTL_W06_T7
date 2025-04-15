@@ -284,7 +284,7 @@ struct FLight
     float pad2;
 
     FVector Position;
-    float Falloff;
+    float Falloff=1.0f;
 
     FVector Direction;
     float pad3;
@@ -292,8 +292,8 @@ struct FLight
     float Attenuation = 20.f;
     int   Enabled;
     int   Type;
-    float Intensity = 1000.f;    // m_fIntensity: 광원 강도
-    float AttRadius = 100.f;    // m_fAttRadius: 감쇠 반경
+    float Intensity = 10.f;    // m_fIntensity: 광원 강도
+    float AttRadius = 20.f;    // m_fAttRadius: 감쇠 반경
     FVector LightPad;
 };
 

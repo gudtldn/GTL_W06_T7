@@ -1,8 +1,8 @@
 #pragma once
 #include "GameFramework/Actor.h"
 
-class USpotLightComponent;
 class UPointLightComponent;
+class USpotLightComponent;
 class UBillboardComponent;
 
 class ALight :public AActor

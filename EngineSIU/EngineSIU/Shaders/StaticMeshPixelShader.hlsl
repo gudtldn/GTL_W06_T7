@@ -104,7 +104,7 @@ PS_OUTPUT mainPS(PS_INPUT input)
     }
     if (isSelected)
     {
-        output.color += float4(0.02, 0.02, 0.02, 1);
+       // output.color += float4(0.02, 0.02, 0.02, 1);
 
     }
     return output;

@@ -249,12 +249,6 @@
     <ClInclude Include="Engine\Source\Editor\UnrealEd\UnrealEd.h">
       <Filter>Engine\Source\Editor\UnrealEd</Filter>
     </ClInclude>
-    <ClCompile Include="Engine\Source\Editor\UnrealEd\UnrealEdEventRouter.cpp">
-      <Filter>Engine\Source\Editor\UnrealEd</Filter>
-    </ClCompile>
-    <ClInclude Include="Engine\Source\Editor\UnrealEd\UnrealEdEventRouter.h">
-      <Filter>Engine\Source\Editor\UnrealEd</Filter>
-    </ClInclude>
     <ClCompile Include="Engine\Source\Runtime\Core\EngineStatics.cpp">
       <Filter>Engine\Source\Runtime\Core</Filter>
     </ClCompile>
@@ -783,6 +777,14 @@
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\PointLightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\SpotLightComponent.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Renderer\EditorRenderPass.cpp" />
+    <ClCompile Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\AmbientLightComponent.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponentBase.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\InputCore\InputCoreTypes.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\SlateCore\Input\Events.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Windows\RawInput.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Windows\WindowsCursor.cpp" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="EngineSIU.natvis" />
@@ -824,6 +826,7 @@
     <FxCompile Include="Shaders\FogPixelShader.hlsl" />
     <FxCompile Include="Shaders\FogVertexShader.hlsl" />
     <FxCompile Include="Shaders\FogQuadPixelShader.hlsl" />
+    <FxCompile Include="Shaders\SpotLightArrow.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Actors\FireballActor.h">
@@ -853,5 +856,13 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\PointLightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\SpotLightComponent.h" />
+    <ClInclude Include="Engine\Source\Runtime\Renderer\EditorRenderPass.h" />
+    <ClInclude Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\AmbientLightComponent.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponentBase.h" />
+    <ClInclude Include="Engine\Source\Runtime\InputCore\InputCoreTypes.h" />
+    <ClInclude Include="Engine\Source\Runtime\SlateCore\Input\Events.h" />
+    <ClInclude Include="Engine\Source\Runtime\Windows\RawInput.h" />
+    <ClInclude Include="Engine\Source\Runtime\Windows\WindowsCursor.h" />
   </ItemGroup>
 </Project>

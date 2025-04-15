@@ -282,7 +282,7 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
             { .label= "Cube",      .obj= OBJ_CUBE },
             { .label= "Sphere",    .obj= OBJ_SPHERE },
             { .label= "PointLight", .obj= OBJ_PointLight },
-            {.label = "SpotLight",  .obj = OBJ_SpotLight },
+            { .label= "SpotLight",  .obj = OBJ_SpotLight },
             { .label= "Particle",  .obj= OBJ_PARTICLE },
             { .label= "Text",      .obj= OBJ_Text },
             { .label= "Fireball",  .obj = OBJ_Fireball},
@@ -308,6 +308,7 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                 }
                 case OBJ_CUBE:
                 {
+
                     // TODO: 다른 부분들 전부 Actor만 소환하도록 하고, Component 생성은 Actor가 자체적으로 하도록 변경.
                     ACube* CubeActor = World->SpawnActor<ACube>();
                     CubeActor->SetActorLabel(TEXT("OBJ_CUBE"));
@@ -317,6 +318,12 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                 {
                     APointLight* LightActor = World->SpawnActor<APointLight>();
                     LightActor->SetActorLabel(TEXT("OBJ_PointLight"));
+                    break;
+                }
+                case OBJ_SpotLight:
+                {
+                    ASpotLight* LightActor = World->SpawnActor<ASpotLight>();
+                    LightActor->SetActorLabel(TEXT("OBJ_SpotLight"));
                     break;
                 }
                 case OBJ_PARTICLE:
@@ -353,12 +360,6 @@ void ControlEditorPanel::CreateModifyButton(ImVec2 ButtonSize, ImFont* IconFont)
                 {
                     SpawnedActor = World->SpawnActor<AHeightFogActor>();
                     SpawnedActor->SetActorLabel(TEXT("OBJ_HeightFog"));
-                    break;
-                }
-                case OBJ_SpotLight:
-                {
-                    ASpotLight* LightActor = World->SpawnActor<ASpotLight>();
-                    LightActor->SetActorLabel(TEXT("OBJ_SpotLight"));
                     break;
                 }
                 case OBJ_TRIANGLE:
