@@ -62,6 +62,10 @@ private:
     friend const ElementType* GetData(const FString&);
 
 public:
+    BaseStringType& GetContainerPrivate() { return PrivateString; }
+    const BaseStringType& GetContainerPrivate() const { return PrivateString; }
+    explicit operator std::string() const { return std::string(PrivateString); }
+
     FString() = default;
     ~FString() = default;
 
@@ -85,6 +89,30 @@ public:
 public:
     FString(const std::string& InString) : PrivateString(InString) {}
     FString(const ANSICHAR* InString) : PrivateString(InString) {}
+    
+    explicit FString(const std::wstring& InString) : FString(InString.c_str()) {}
+    explicit FString(const WIDECHAR* InString)
+    {
+        if (!InString) // Null 체크
+        {
+            PrivateString = "";
+            return;
+        }
+
+        // Wide 문자열을 UTF-8 기반의 narrow 문자열로 변환
+        int sizeNeeded = WideCharToMultiByte(CP_UTF8, 0, InString, -1, nullptr, 0, nullptr, nullptr);
+        if (sizeNeeded <= 0) // 변환 실패 또는 빈 문자열
+        {
+            PrivateString = "";
+            return;
+        }
+
+        // sizeNeeded는 널 종료 문자를 포함한 길이입니다.
+        std::string narrowStr(sizeNeeded - 1, 0); // 널 문자 제외한 크기로 할당
+        WideCharToMultiByte(CP_UTF8, 0, InString, -1, &narrowStr[0], sizeNeeded, nullptr, nullptr);
+
+        PrivateString = narrowStr; // 변환된 문자열로 내부 데이터 초기화
+    }
 #endif
 
 #if USE_WIDECHAR
@@ -134,6 +162,55 @@ public:
     static FString SanitizeFloat(float InFloat);
 
 	static float ToFloat(const FString& InString);
+    
+    static int ToInt(const FString& InString);
+
+    /**
+     * 문자열 내용을 기반으로 bool 값을 반환합니다.
+     */
+    bool ToBool() const
+    {
+        // 빈 문자열은 false로 처리
+        if (IsEmpty())
+        {
+            return false;
+        }
+
+        // 가장 일반적인 경우: "true" 또는 "1" (대소문자 무관)
+        // Equals 함수가 이미 대소문자 무시 비교를 지원하므로 활용합니다.
+        if (Equals(TEXT("true"), ESearchCase::IgnoreCase))
+        {
+            return true;
+        }
+        if (Equals(TEXT("1"))) // "1"은 대소문자 구분이 의미 없음
+        {
+            return true;
+        }
+
+        // 그 외: "false" 또는 "0" (대소문자 무관)
+        // 이 경우들도 명시적으로 false를 반환하는 것이 안전합니다.
+        if (Equals(TEXT("false"), ESearchCase::IgnoreCase))
+        {
+            return false;
+        }
+        if (Equals(TEXT("0"))) // "0"도 대소문자 구분이 의미 없음
+        {
+            return false;
+        }
+
+        // 위 조건에 해당하지 않는 모든 다른 문자열은 false로 처리합니다.
+        // (예: "Yes", "No", "On", "Off" 등을 추가로 지원하고 싶다면 여기에 조건을 추가할 수 있습니다.)
+        // UE_LOG(LogTemp, Warning, TEXT("FString::ToBool() : Unrecognized string '%s' treated as false."), **this); // 필요시 경고 로그
+        return false;
+    }
+
+    /**
+     * 이 문자열의 시작 부분에서 Count개의 문자를 제외한 나머지를 복사하여 반환합니다.
+     * @param Count 제거할 앞부분 문자의 개수.
+     * @return 시작 부분이 제거된 새로운 FString 객체. Count가 0보다 작거나 같으면 원본 복사본을,
+     *         Count가 문자열 길이보다 크거나 같으면 빈 문자열을 반환합니다.
+     */
+    FString RightChop(int32 Count) const;
 
 public:
     FORCEINLINE int32 Len() const;
@@ -205,18 +282,14 @@ public:
         return PrivateString[Index];
     }
 public:
-    static FString Printf(const ElementType* Format, ...)
-    {
-        va_list Args;
-        va_start(Args, Format);
-        int32 len = _vscprintf(Format, Args);
-        FString Result;
-        Result.PrivateString.resize(len + 1); // null문자를 포함해서 받음
-        vsnprintf(Result.PrivateString.data(), len + 1, Format, Args);
-        va_end(Args);
-        Result.PrivateString.resize(len); // 여기서 null문자를 지움
-        return Result;
-    }
+    // --- Printf 함수 ---
+    /**
+     * @brief 가변 인자를 사용하여 포맷팅된 FString을 생성합니다. printf와 유사하게 동작합니다.
+     * @param Format 포맷 문자열 (TCHAR*).
+     * @param ... 포맷 문자열에 대응하는 가변 인자.
+     * @return 포맷팅된 새로운 FString 객체.
+     */
+    static FString Printf(const ElementType* Format, ...);
 };
 
 template <typename Number>

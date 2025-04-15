@@ -13,9 +13,10 @@ class TArray
 public:
     using SizeType = typename Allocator::SizeType;
     using ElementType = T;
+    using ArrayType = std::vector<ElementType, Allocator>;
 
 private:
-    std::vector<T, Allocator> ContainerPrivate;
+    ArrayType ContainerPrivate;
 
 public:
     // Iterator를 사용하기 위함
@@ -33,6 +34,9 @@ public:
 	void operator+(const TArray& OtherArray);
 
 public:
+    ArrayType& GetContainerPrivate() { return ContainerPrivate; }
+    const ArrayType& GetContainerPrivate() const { return ContainerPrivate; }
+
     TArray();
     ~TArray() = default;
 

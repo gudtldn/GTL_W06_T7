@@ -69,8 +69,6 @@ struct FNameEntryHeader
 
 struct FNameEntry
 {
-	static constexpr uint32 NAME_SIZE = 256; // FName에 저장될 수 있는 최대 길이
-
 	FNameEntryId ComparisonId; // 비교 문자열이 있는 해시
 	FNameEntryHeader Header;   // Name의 정보
 
@@ -111,7 +109,7 @@ uint32 HashString(const CharType* Str)
 template <typename CharType>
 uint32 HashStringLower(const CharType* Str, uint32 InLen)
 {
-	CharType LowerStr[FNameEntry::NAME_SIZE];
+	CharType LowerStr[NAME_SIZE];
 	if constexpr (std::is_same_v<CharType, wchar_t>)
 	{
 		for (uint32 i = 0; i < InLen; i++)
@@ -387,9 +385,9 @@ struct FNameHelper
 	static FName MakeFName(const CharType* Char, uint32 Len)
 	{
 		// 문자열의 길이가 NAME_SIZE를 초과하면 None 반환
-		if (Len >= FNameEntry::NAME_SIZE)
+		if (Len >= NAME_SIZE)
 		{
-		    assert(Len >= FNameEntry::NAME_SIZE);
+		    assert(Len >= NAME_SIZE);
 			return {};
 		}
 

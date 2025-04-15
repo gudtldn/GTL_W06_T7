@@ -15,9 +15,7 @@ UObject* UTextComponent::Duplicate(UObject* InOuter)
 {
     ThisClass* NewComponent = Cast<ThisClass>(Super::Duplicate(InOuter));
 
-    NewComponent->TextAtlasBufferKey = TextAtlasBufferKey;
     NewComponent->Text = Text;
-    NewComponent->Quad = Quad;
     NewComponent->QuadSize = QuadSize;
     NewComponent->RowCount = RowCount;
     NewComponent->ColumnCount = ColumnCount;
@@ -25,6 +23,55 @@ UObject* UTextComponent::Duplicate(UObject* InOuter)
     NewComponent->QuadHeight = QuadHeight;
 
     return NewComponent;
+}
+
+void UTextComponent::GetProperties(TMap<FString, FString>& OutProperties) const
+{
+    Super::GetProperties(OutProperties);
+    
+    OutProperties.Add(TEXT("Text"), FString(Text.c_str()));
+    OutProperties.Add(TEXT("RowCount"), FString::Printf(TEXT("%d"), RowCount));
+    OutProperties.Add(TEXT("ColumnCount"), FString::Printf(TEXT("%d"), ColumnCount));
+    OutProperties.Add(TEXT("QuadWidth"), FString::Printf(TEXT("%f"), QuadWidth));
+    OutProperties.Add(TEXT("QuadHeight"), FString::Printf(TEXT("%f"), QuadHeight));
+    OutProperties.Add(TEXT("QuadSize"), FString::Printf(TEXT("%i"), QuadSize));
+}
+
+void UTextComponent::SetProperties(const TMap<FString, FString>& InProperties)
+{
+    Super::SetProperties(InProperties);
+    const FString* TempStr = nullptr;
+    TempStr = InProperties.Find(TEXT("Text"));
+    if (TempStr)
+    {
+        Text = TempStr->ToWideString();
+    }
+    TempStr = InProperties.Find(TEXT("RowCount"));
+    if (TempStr)
+    {
+        RowCount = FString::ToInt(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("ColumnCount"));
+    if (TempStr)
+    {
+        ColumnCount = FString::ToInt(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("QuadWidth"));
+    if (TempStr)
+    {
+        QuadWidth = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("QuadHeight"));
+    if (TempStr)
+    {
+        QuadHeight = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("QuadSize"));
+    if (TempStr)
+    {
+        QuadSize = FString::ToFloat(*TempStr);
+    }
+    
 }
 
 void UTextComponent::InitializeComponent()

@@ -18,6 +18,10 @@ public:
         const FVector& v0, const FVector& v1, const FVector& v2, float& hitDistance
     ) const;
 
+    
+    void GetProperties(TMap<FString, FString>& OutProperties) const override;
+    void SetProperties(const TMap<FString, FString>& InProperties) override;
+
 
     FBoundingBox AABB;
 

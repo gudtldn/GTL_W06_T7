@@ -436,7 +436,10 @@ void PropertyEditorPanel::RenderForStaticMesh(UStaticMeshComponent* StaticMeshCo
                 if (ImGui::Selectable(GetData(Class->GetName()), false))
                 {
                     USceneComponent* NewComp = Cast<USceneComponent>(StaticMeshComp->GetOwner()->AddComponent(Class));
-                    NewComp->SetupAttachment(StaticMeshComp);
+                    if (NewComp)
+                    {
+                        NewComp->SetupAttachment(StaticMeshComp);
+                    }
                     // 추후 Engine으로부터 SelectedComponent 받아서 선택된 Comp 아래로 붙일 수있으면 붙이기.
                 }
             }

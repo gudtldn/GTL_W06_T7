@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "Container/String.h"
 
 struct FVector;
 struct FQuat;
@@ -61,4 +62,8 @@ struct FRotator
     float Clamp(float Angle) const;
     FRotator GetNormalized() const;
     void Normalize();
+
+    
+    FString ToString() const;
+    bool InitFromString(const FString& InSourceString);
 };

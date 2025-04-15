@@ -11,6 +11,11 @@ public:
 
     virtual UObject* Duplicate(UObject* InOuter) override;
 
+    
+    void GetProperties(TMap<FString, FString>& OutProperties) const override;
+    
+    void SetProperties(const TMap<FString, FString>& InProperties) override;
+
     void SetselectedSubMeshIndex(const int& value) { selectedSubMeshIndex = value; }
     int GetselectedSubMeshIndex() const { return selectedSubMeshIndex; };
 

@@ -2,16 +2,16 @@
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 
     <!-- FString Visualizer -->
-    <Type Name="FString">
-        <Intrinsic Name="Num" Expression="PrivateString._Mypair._Myval2._Mysize" />
-        <Intrinsic Name="Len" Expression="PrivateString._Mypair._Myval2._Myres" />
-        <DisplayString Condition="Num() == 0 &amp;&amp; Len() == 0">Empty</DisplayString>
-        <DisplayString Condition="Num() == 0 &amp;&amp; Len() &gt; 0">Empty, Max={Len()}</DisplayString>
-        <DisplayString Condition="Num() &lt; 0">Invalid</DisplayString>
-        <DisplayString Condition="Len() &lt; Num()">Invalid</DisplayString>
-        <DisplayString Condition="Len() &gt;= Num()">{PrivateString._Mypair._Myval2._Bx._Alias}</DisplayString>
-        <StringView Condition="Len() &gt;= Num()">PrivateString._Mypair._Myval2._Bx._Alias</StringView>
-    </Type>
+<!--    <Type Name="FString">-->
+<!--        <Intrinsic Name="Num" Expression="PrivateString._Mypair._Myval2._Mysize" />-->
+<!--        <Intrinsic Name="Len" Expression="PrivateString._Mypair._Myval2._Myres" />-->
+<!--        <DisplayString Condition="Num() == 0 &amp;&amp; Len() == 0">Empty</DisplayString>-->
+<!--        <DisplayString Condition="Num() == 0 &amp;&amp; Len() &gt; 0">Empty, Max={Len()}</DisplayString>-->
+<!--        <DisplayString Condition="Num() &lt; 0">Invalid</DisplayString>-->
+<!--        <DisplayString Condition="Len() &lt; Num()">Invalid</DisplayString>-->
+<!--        <DisplayString Condition="Len() &gt;= Num()">{PrivateString._Mypair._Myval2._Bx._Alias}</DisplayString>-->
+<!--        <StringView Condition="Len() &gt;= Num()">PrivateString._Mypair._Myval2._Bx._Alias</StringView>-->
+<!--    </Type>-->
 
 	<!-- FName Visualizer -->
 	<Type Name="FName">

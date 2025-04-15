@@ -13,6 +13,16 @@ UObject* UMeshComponent::Duplicate(UObject* InOuter)
     return NewComponent;
 }
 
+void UMeshComponent::GetProperties(TMap<FString, FString>& OutProperties) const
+{
+    Super::GetProperties(OutProperties);
+}
+
+void UMeshComponent::SetProperties(const TMap<FString, FString>& InProperties)
+{
+    Super::SetProperties(InProperties);
+}
+
 UMaterial* UMeshComponent::GetMaterial(uint32 ElementIndex) const
 {
     if (OverrideMaterials.IsValidIndex(ElementIndex))

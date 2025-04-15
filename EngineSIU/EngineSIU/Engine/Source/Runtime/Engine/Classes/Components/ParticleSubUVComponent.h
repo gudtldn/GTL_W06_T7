@@ -12,6 +12,10 @@ public:
     UParticleSubUVComponent();
 
     virtual UObject* Duplicate(UObject* InOuter) override;
+    
+    void GetProperties(TMap<FString, FString>& OutProperties) const override;
+    void SetProperties(const TMap<FString, FString>& InProperties) override;
+    
     virtual void InitializeComponent() override;
     virtual void TickComponent(float DeltaTime) override;
 

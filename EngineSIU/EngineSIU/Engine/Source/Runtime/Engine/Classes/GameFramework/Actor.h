@@ -53,8 +53,8 @@ public:
      */
     template <typename T>
         requires std::derived_from<T, UActorComponent>
-    T* AddComponent();
-    UActorComponent* AddComponent(UClass* InClass);
+    T* AddComponent(FName InName = NAME_None);
+    UActorComponent* AddComponent(UClass* InClass, FName InName = NAME_None, bool bTryRootComponent = true);
 
 
     /** Actor가 가지고 있는 Component를 제거합니다. */
@@ -115,7 +115,7 @@ public:
     FString GetActorLabel() const;
 
     /** Actor의 Label을 설정합니다. */
-    void SetActorLabel(const FString& NewActorLabel);
+    void SetActorLabel(const FString& NewActorLabel, bool bUUID = true);
 
 private:
     /** 에디터상에 보이는 Actor의 이름 */
@@ -134,9 +134,9 @@ private:
 
 template <typename T>
     requires std::derived_from<T, UActorComponent>
-T* AActor::AddComponent()
+T* AActor::AddComponent(FName InName)
 {
-    return Cast<T>(AddComponent(T::StaticClass()));
+    return Cast<T>(AddComponent(T::StaticClass(), InName));
 }
 
 template <typename T> requires std::derived_from<T, UActorComponent>

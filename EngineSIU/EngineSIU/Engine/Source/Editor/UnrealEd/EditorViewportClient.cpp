@@ -241,7 +241,7 @@ void FEditorViewportClient::InputKey(const FKeyEvent& InKeyEvent)
         {
             if (AActor* SelectedActor = EdEngine->GetSelectedActor())
             {
-                EdEngine->DeselectActor(SelectedActor);
+                EdEngine->SelectActor(nullptr);
                 GEngine->ActiveWorld->DestroyActor(SelectedActor);
             }
             break;

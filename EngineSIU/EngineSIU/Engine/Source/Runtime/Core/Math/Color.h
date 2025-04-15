@@ -93,6 +93,12 @@ struct FLinearColor
     float A;
     FLinearColor() : R(0), G(0), B(0), A(0) {}
     FLinearColor(float InR, float InG, float InB, float InA = 1.0f) : R(InR), G(InG), B(InB), A(InA) {}
+    FLinearColor(const FString& SourceString)
+        : R(0), G(0), B(0), A(0)
+    {
+        InitFromString(SourceString);
+    }
+    
 
     // FVector4 생성자와의 혼동을 피하기 위해 explicit으로 유지할 것.
     explicit FLinearColor(const FVector& InVector) : R(InVector.X), G(InVector.Y), B(InVector.Z), A(1.0f) {}
@@ -280,4 +286,5 @@ struct FLinearColor
     }
 
     FString ToString() const;
+    bool InitFromString(const FString& SourceString);
 };

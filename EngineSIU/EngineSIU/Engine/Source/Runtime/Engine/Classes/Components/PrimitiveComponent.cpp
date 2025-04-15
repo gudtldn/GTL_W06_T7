@@ -100,3 +100,35 @@ bool UPrimitiveComponent::IntersectRayTriangle(const FVector& rayOrigin, const F
 
     return false;
 }
+
+void UPrimitiveComponent::GetProperties(TMap<FString, FString>& OutProperties) const
+{
+    Super::GetProperties(OutProperties);
+    OutProperties.Add(TEXT("m_Type"), m_Type);
+    OutProperties.Add(TEXT("AABB_min"), AABB.min.ToString());
+    OutProperties.Add(TEXT("AABB_max"), AABB.max.ToString());
+}
+
+
+void UPrimitiveComponent::SetProperties(const TMap<FString, FString>& InProperties)
+{
+    Super::SetProperties(InProperties);
+
+    const FString* TempStr = nullptr;
+
+    // --- PrimitiveComponent 고유 속성 복원 ---
+
+    TempStr = InProperties.Find(TEXT("m_Type"));
+    if (TempStr)
+    {
+        this->m_Type = *TempStr; // m_Type이 FString이라고 가정
+        // 만약 m_Type이 enum이라면 문자열로부터 enum 값을 파싱하는 로직 필요
+    }
+
+    const FString* AABBminStr = InProperties.Find(TEXT("AABB_min"));
+    if (AABBminStr) AABB.min.InitFromString(*AABBminStr); 
+
+    
+    const FString* AABBmaxStr = InProperties.Find(TEXT("AABB_max"));
+    if (AABBmaxStr) AABB.max.InitFromString(*AABBmaxStr); 
+}
