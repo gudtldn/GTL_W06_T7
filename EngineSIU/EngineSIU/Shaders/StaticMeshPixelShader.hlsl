@@ -22,24 +22,24 @@ cbuffer CameraConstants : register(b1)
     float pad;
 };
 
-struct FMaterial
-{
-    float3 DiffuseColor;
-    float TransparencyScalar;
+//struct FMaterial
+//{
+//    float3 DiffuseColor;
+//    float TransparencyScalar;
     
-    float3 AmbientColor;
-    float DensityScalar;
+//    float3 AmbientColor;
+//    float DensityScalar;
     
-    float3 SpecularColor;
-    float SpecularScalar;
+//    float3 SpecularColor;
+//    float SpecularScalar;
     
-    float3 EmissiveColor;
-    int bUseBumpMap;
-};
-cbuffer MaterialConstants : register(b3)
-{
-    FMaterial Material;
-}
+//    float3 EmissiveColor;
+//    int bUseBumpMap;
+//};
+//cbuffer MaterialConstants : register(b3)
+//{
+//    FMaterial Material;
+//}
 cbuffer FlagConstants : register(b4)
 {
     bool IsLit;

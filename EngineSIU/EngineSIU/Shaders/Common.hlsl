@@ -13,7 +13,7 @@ struct FMaterial
     float  SpecularScalar;
     
     float3 EmissiveColor;
-    float  MaterialPad0;
+    int bUseBumpMap;
 };
 
 #endif
