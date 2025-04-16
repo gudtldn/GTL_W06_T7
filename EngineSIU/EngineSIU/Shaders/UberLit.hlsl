@@ -92,7 +92,7 @@ float4 CalculateSpotLight(SpotLightInfo light, float3 vPosition, float3 vNormal)
     //float CosInnerConeAngle = cos(radians(10.0f / 2)); // 예시: 내부 원뿔 반각 30도의 코사인
     //float CosOuterConeAngle = cos(radians(60.0f / 2)); // 예시: 외부 원뿔 반각 60도의 코사인
     
-    float SpotLightRatioBase = (fSpotCosAngle - CosOuterConeAngle) / (CosInnerConeAngle - CosOuterConeAngle));
+    float SpotLightRatioBase = (fSpotCosAngle - CosOuterConeAngle) / (CosInnerConeAngle - CosOuterConeAngle);
     //float SpotLightRatioBase = (fSpotCosAngle - cosInnerConeAngle) / (cosInnerConeAngle - cosOuterConeAngle);
     float SaturatedSpotLightRatioBase = saturate(SpotLightRatioBase);
     
