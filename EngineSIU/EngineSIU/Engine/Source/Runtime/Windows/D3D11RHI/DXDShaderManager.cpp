@@ -135,10 +135,12 @@ HRESULT FDXDShaderManager::AddPixelShader(
 
     ID3DBlob* PsBlob = nullptr;
     ID3DBlob* errorBlob = nullptr;
+    FShaderIncludeHandler IncludesHandler;
+    
     HRESULT hr = D3DCompileFromFile(
         FileName.c_str(),
         Defines, // << 매크로 정의 들어가는 핵심 부분
-        D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        &IncludesHandler,
         EntryPoint.c_str(),
         "ps_5_0",
         shaderFlags,
@@ -166,13 +168,9 @@ HRESULT FDXDShaderManager::AddPixelShader(
         return hr;
 
     PixelShaders[Key] = NewPixelShader;
+    PixelShaders[Key].SetFileMetadata(std::make_unique<FShaderFileMetadata>(EntryPoint, FileName, IncludesHandler.GetIncludePaths()));
 
     return S_OK;
-}
-
-HRESULT FDXDShaderManager::AddVertexShader(const std::wstring& Key, const std::wstring& FileName)
-{
-    return E_NOTIMPL;
 }
 
 HRESULT FDXDShaderManager::AddVertexShader(const std::wstring& Key, const std::wstring& FileName, const std::string& EntryPoint)
@@ -228,11 +226,12 @@ HRESULT FDXDShaderManager::AddVertexShader(
 
     ID3DBlob* vsBlob = nullptr;
     ID3DBlob* errorBlob = nullptr;
+    FShaderIncludeHandler IncludesHandler;
 
     HRESULT hr = D3DCompileFromFile(
         FileName.c_str(),
         Defines,
-        D3D_COMPILE_STANDARD_FILE_INCLUDE,
+        &IncludesHandler,
         EntryPoint.c_str(),
         "vs_5_0",
         shaderFlags,
@@ -259,6 +258,7 @@ HRESULT FDXDShaderManager::AddVertexShader(
     }
 
     VertexShaders[Key] = NewVertexShader;
+    VertexShaders[Key].SetFileMetadata(std::make_unique<FShaderFileMetadata>(EntryPoint, FileName, IncludesHandler.GetIncludePaths()));
     vsBlob->Release();
 
     return S_OK;

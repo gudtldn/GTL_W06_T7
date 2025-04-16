@@ -155,7 +155,6 @@ private:
 	ID3D11Device* DXDDevice;
 
 public:
-	HRESULT AddVertexShader(const std::wstring& Key, const std::wstring& FileName);
 	HRESULT AddVertexShader(const std::wstring& Key, const std::wstring& FileName, const std::string& EntryPoint);
     HRESULT AddVertexShader(const std::wstring& Key, const std::wstring& FileName, const std::string& EntryPoint, const D3D_SHADER_MACRO* Defines);
 	HRESULT AddInputLayout(const std::wstring& Key, const D3D11_INPUT_ELEMENT_DESC* Layout, uint32_t LayoutSize);
@@ -174,8 +173,8 @@ public:
 
 private:
 	TMap<std::wstring, ID3D11InputLayout*> InputLayouts;
-	// TMap<std::wstring, ID3D11VertexShader*> VertexShaders;
-	// TMap<std::wstring, ID3D11PixelShader*> PixelShaders;
+	//TMap<std::wstring, ID3D11VertexShader*> VertexShaders;
+	//TMap<std::wstring, ID3D11PixelShader*> PixelShaders;
 	TMap<std::wstring, NS_ShaderMetadata::TShaderMetadataPtr<ID3D11VertexShader>> VertexShaders;
 	TMap<std::wstring, NS_ShaderMetadata::TShaderMetadataPtr<ID3D11PixelShader>> PixelShaders;
 };

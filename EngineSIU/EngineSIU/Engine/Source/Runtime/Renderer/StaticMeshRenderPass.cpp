@@ -274,6 +274,7 @@ void FStaticMeshRenderPass::UpdateShadersByViewMode(EViewModeIndex evi)
 
     VertexShader = Pipeline.VertexShader;
     PixelShader = Pipeline.PixelShader;
+}
 
 void FStaticMeshRenderPass::ReloadShader()
 {
