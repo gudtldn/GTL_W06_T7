@@ -443,6 +443,12 @@ struct FTextureConstants {
     float pad1;
 };
 
+struct FRenderNormalConstants
+{
+    int bRenderNormal;
+    FVector pad;
+};
+
 struct FLinePrimitiveBatchArgs
 {
     FGridParameters GridParam;
