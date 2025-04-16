@@ -132,30 +132,35 @@ void PropertyEditorPanel::Render()
                     lightObj->SetAttenuationRadius(AttenuationRadius);
                 }
 
-                if (USpotLightComponent* spotLightObj = Cast<USpotLightComponent>(lightObj))
+                if (USpotLightComponent* SpotLightComponent = Cast<USpotLightComponent>(lightObj))
                 {
                     ImGui::Separator();
 
                     //ImGui::Text("Spot Light Properties");
                     if (ImGui::CollapsingHeader("Spot Light Properties"))
                     {
-                        float innerAngle = spotLightObj->GetInnerConeAngle();
-                        if (ImGui::SliderFloat("Inner Cone Angle", &innerAngle, 0.0f, 90.0f, "%.1f deg"))
+                        float InnerAngle = SpotLightComponent->GetInnerConeAngle();
+                        if (ImGui::SliderFloat("Inner Cone Angle", &InnerAngle, 0.0f, 90.0f, "%.1f deg"))
                         {
-                            spotLightObj->SetInnerConeAngle(innerAngle); // Use the new Setter
+                            SpotLightComponent->SetInnerConeAngle(InnerAngle);
+                            SpotLightComponent->SetOuterConeAngle(
+                                FMath::Max(InnerAngle, SpotLightComponent->GetOuterConeAngle())
+                            ); // Use the new Setter
                         }
 
-                        float outerAngle = spotLightObj->GetOuterConeAngle();
-                        if (ImGui::SliderFloat("Outer Cone Angle", &outerAngle, 0.0f, 90.f, "%.1f deg"))
+                        float OuterAngle = SpotLightComponent->GetOuterConeAngle();
+                        if (ImGui::SliderFloat("Outer Cone Angle", &OuterAngle, 0.0f, 90.f, "%.1f deg"))
                         {
-                            // if (outerAngle < innerAngle) outerAngle = innerAngle;
-                            spotLightObj->SetOuterConeAngle(outerAngle); // Use the new Setter
+                            SpotLightComponent->SetOuterConeAngle(OuterAngle);
+                            SpotLightComponent->SetInnerConeAngle(
+                                FMath::Min(OuterAngle, SpotLightComponent->GetInnerConeAngle())
+                            ); // Use the new Setter
                         }
 
-                        float falloff = spotLightObj->GetFalloff();
+                        float falloff = SpotLightComponent->GetFalloff();
                         if (ImGui::SliderFloat("Spot Falloff", &falloff, 0.1f, 20.0f, "%.2f"))
                         {
-                            spotLightObj->SetFalloff(falloff); // Use the new Setter
+                            SpotLightComponent->SetFalloff(falloff); // Use the new Setter
                         }
                     }
                 }

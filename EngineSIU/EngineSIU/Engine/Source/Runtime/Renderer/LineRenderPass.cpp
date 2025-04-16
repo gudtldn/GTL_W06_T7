@@ -11,6 +11,8 @@
 #include "Math/JungleMath.h"
 
 #include "EngineLoop.h"
+#include "Components/Light/SpotLightComponent.h"
+#include "Engine/EditorEngine.h"
 
 #include "UObject/UObjectIterator.h"
 
@@ -115,8 +117,43 @@ void FLineRenderPass::Render(const std::shared_ptr<FEditorViewportClient>& Viewp
 {
     Graphics->DeviceContext->OMSetRenderTargets(1, &Graphics->FrameBufferRTV, Graphics->DepthStencilView);
 
+    if (const UEditorEngine* EdEngine = Cast<UEditorEngine>(GEngine))
+    {
+        if (const AActor* SelectedActor = EdEngine->GetSelectedActor())
+        {
+            for (UActorComponent* ActorComponent : SelectedActor->GetComponents())
+            {
+                if (const USpotLightComponent* SpotComponent = Cast<USpotLightComponent>(ActorComponent))
+                {
+                    // Inner Cone
+                    if (SpotComponent->GetInnerConeAngle() > KINDA_SMALL_NUMBER)
+                    {
+                        FEngineLoop::PrimitiveDrawBatch.AddConeToBatch(
+                            SpotComponent->GetWorldLocation(),
+                            SpotComponent->GetInnerConeAngle(),
+                            SpotComponent->GetAttenuationRadius(),
+                            30,
+                            {0.0f, 1.0f, 1.0f, 1.0f},
+                            SpotComponent->GetWorldMatrix()
+                        );
+                    }
+
+                    // Outer Cone
+                    if (SpotComponent->GetOuterConeAngle() > KINDA_SMALL_NUMBER)
+                    {
+                        FEngineLoop::PrimitiveDrawBatch.AddConeToBatch(
+                            SpotComponent->GetWorldLocation(),
+                            SpotComponent->GetOuterConeAngle(),
+                            SpotComponent->GetAttenuationRadius(),
+                            30,
+                            {1.0f, 1.0f, 1.0f, 1.0f},
+                            SpotComponent->GetWorldMatrix()
+                        );
+                    }
+                }
+            }
+        }
+    }
+
     ProcessLineRendering(Viewport);
-
-
-  
 }
