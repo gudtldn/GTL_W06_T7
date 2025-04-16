@@ -20,10 +20,11 @@ struct FStaticMeshVertex
 {
     float X, Y, Z;    // Position
     float NormalX, NormalY, NormalZ;
-    float TangentX, TangentY, TangentZ;
+    float TangentX = 0.f, TangentY = 0.f , TangentZ = 0.f;
     float U = 0, V = 0;
     float R, G, B, A; // Color
     uint32 MaterialIndex;
+    //uint32 TangentCalculatedCount = 0; // 탄젠트 계산 횟수
 };
 
 // Material Subset
@@ -75,7 +76,8 @@ struct FObjMaterialInfo
 {
     FString MaterialName;  // newmtl : Material Name.
 
-    bool bHasTexture = false;  // Has Texture?
+    bool bHasDiffuseTexture = false;  // Has Diffuse Texture?
+    bool bHasBumpTexture = false;     // Has Bump Texture?
     bool bTransparent = false; // Has alpha channel?
 
     FVector Diffuse;  // Kd : Diffuse (Vector4)
@@ -275,34 +277,116 @@ enum ELightType {
     SPOT_LIGHT = 2
 };
 
+// struct FLight
+// {
+//     FVector DiffuseColor;
+//     float pad1;
+//
+//     FVector SpecularColor;
+//     float pad2;
+//
+//     FVector Position;
+//     float Falloff;
+//
+//     FVector Direction;
+//     float pad3;
+//
+//     float Attenuation = 20.f;
+//     int   Enabled;
+//     int   Type;
+//     float Intensity = 1000.f;    // m_fIntensity: 광원 강도
+//     float AttRadius = 100.f;    // m_fAttRadius: 감쇠 반경
+//     FVector LightPad;
+// };
+
+// struct FLightBuffer
+// {
+//     FLight gLights[MAX_LIGHTS]{};
+//     FVector4 GlobalAmbientLight;
+//     int nLights;
+//     float    pad0, pad1, pad2;
+// };
 struct FLight
-{
-    FVector DiffuseColor;
-    float pad1;
+{ 
+FVector Position;
+float Falloff = 1.0f;
 
-    FVector SpecularColor;
-    float pad2;
+FVector Direction;
+float pad3;
+FVector DiffuseColor;
+float pad1;
 
-    FVector Position;
-    float Falloff;
+FVector SpecularColor;
+float pad2;
 
-    FVector Direction;
-    float pad3;
+float Attenuation = 20.f;
+int   Enabled;
+int   Type;
+float Intensity = 10.f;    // m_fIntensity: 광원 강도
 
-    float Attenuation = 20.f;
-    int   Enabled;
-    int   Type;
-    float Intensity = 1000.f;    // m_fIntensity: 광원 강도
-    float AttRadius = 100.f;    // m_fAttRadius: 감쇠 반경
-    FVector LightPad;
+float AttRadius = 20.f;    // m_fAttRadius: 감쇠 반경
+FVector LightPad;
+
+float InnerConeAngle;  // HLSL의 m_fInnerConeAngle 에 대응
+float OuterConeAngle;  // HLSL의 m_fOuterConeAngle 에 대응
+FVector2D Pad1;        // HLSL의 float2 Pad1 에 대응 (16바이트 정렬 확인)
 };
 
-struct FLightBuffer
+struct FAmbientLightInfo
 {
-    FLight gLights[MAX_LIGHTS]{};
-    FVector4 GlobalAmbientLight;
-    int nLights;
-    float    pad0, pad1, pad2;
+    FVector Color;
+    float  Intensity;
+};
+
+struct FDirectionalLightInfo
+{
+    FVector Direction;
+    float pad0;
+    FVector Color;
+    float  Intensity;
+};
+
+struct FPointLightInfo
+{
+    FVector Position;
+    float pad0;
+    FVector DiffuseColor;
+    float pad1;
+    FVector SpecularColor;
+    float pad2;
+    float  Intensity;
+    float  m_fAttRadius;
+    float  m_fAttenuation; // 추가: 거리 기반 감쇠 계수
+    float pad3;
+};
+
+struct FSpotLightInfo
+{
+    FVector Position;
+    float  pad0;
+    FVector Direction;
+    float  pad1;
+    FVector DiffuseColor;
+    float  pad2;
+    FVector SpecularColor;
+    float  pad3;
+    float  Intensity;
+    float  m_fAttRadius;
+    float  m_fFalloff;      // 스팟라이트 감쇠 인자
+    float  m_fAttenuation;  // 거리 기반 감쇠 계수
+    float  InnerConeAngle;
+    float  OuterConeAngle;
+    FVector2D  pad4; 
+};
+
+#define NUM_POINT_LIGHT         4
+#define NUM_SPOT_LIGHT          4
+struct FLighting
+{
+    FAmbientLightInfo AmbientLight;
+    FDirectionalLightInfo DirectionalLight;
+    FPointLightInfo PointLights[NUM_POINT_LIGHT];
+    FSpotLightInfo SpotLights[NUM_SPOT_LIGHT];
 };
 
 
@@ -317,8 +401,8 @@ struct FMaterialConstants {
     float SpecularScalar;
 
     FVector EmmisiveColor;
-    float MaterialPad0;
-
+    
+    int bUseBumpMap;
 };
 
 struct FPerObjectConstantBuffer {

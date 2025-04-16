@@ -772,14 +772,17 @@
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Engine\AssetManager.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\TextComponent.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Actors\PointLightActor.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Actors\SpotLightActor.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\PointLightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\SpotLightComponent.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Renderer\EditorRenderPass.cpp" />
     <ClCompile Include="Engine\Source\Editor\UnrealEd\SceneManager.cpp" />
     <ClCompile Include="Engine\Source\Runtime\CoreUObject\UObject\ObjectGlobals.cpp" />
-    <ClCompile Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Core\Math\Vector4.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Core\Misc\Parse.cpp" />
+    <ClCompile Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\AmbientLightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponentBase.cpp" />
     <ClCompile Include="Engine\Source\Runtime\InputCore\InputCoreTypes.cpp" />
@@ -824,9 +827,22 @@
     <FxCompile Include="Shaders\Light.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\FogPixelShader.hlsl" />
-    <FxCompile Include="Shaders\FogVertexShader.hlsl" />
-    <FxCompile Include="Shaders\FogQuadPixelShader.hlsl" />
+    <FxCompile Include="Shaders\SpotLightArrow.hlsl" />
+    <FxCompile Include="Shaders\Common.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FogPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FogQuadPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FogVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\UberLit.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Actors\FireballActor.h">
@@ -851,14 +867,17 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Engine\AssetManager.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\BillboardComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\TextComponent.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Actors\PointLightActor.h" />
+    <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Actors\SpotLightActor.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\PointLightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\SpotLightComponent.h" />
+    <ClInclude Include="Engine\Source\Runtime\Renderer\EditorRenderPass.h" />
     <ClInclude Include="Engine\Source\Editor\UnrealEd\SceneManager.h" />
     <ClInclude Include="Engine\Source\Runtime\CoreUObject\UObject\ObjectGlobals.h" />
-    <ClInclude Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.h" />
     <ClInclude Include="Engine\Source\Runtime\Core\Misc\Char.h" />
     <ClInclude Include="Engine\Source\Runtime\Core\Misc\Parse.h" />
+    <ClInclude Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\AmbientLightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponentBase.h" />
     <ClInclude Include="Engine\Source\Runtime\InputCore\InputCoreTypes.h" />
