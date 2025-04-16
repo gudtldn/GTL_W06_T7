@@ -150,8 +150,7 @@ public: //Camera Movement
     void SetViewportType(ELevelViewportType InViewportType);
     void UpdateOrthoCameraLoc();
     EViewModeIndex GetViewMode() const { return ViewMode; }
-    void SetViewMode(EViewModeIndex newMode)
-    { ViewMode = newMode; }
+    void SetViewMode(EViewModeIndex newMode) { ViewMode = newMode; }
     uint64 GetShowFlag() const { return ShowFlag; }
     void SetShowFlag(uint64 newMode) { ShowFlag = newMode; }
     bool GetIsOnRBMouseClick() const { return bRightMouseDown; }

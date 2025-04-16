@@ -426,7 +426,7 @@ void ControlEditorPanel::CreateFlagButton() const
     
     int rawViewMode = (int)ActiveViewport->GetViewMode();
     constexpr int ViewModeCount = IM_ARRAYSIZE(ViewModeNames);
-    int safeIndex = std::clamp(rawViewMode, 0, ViewModeCount - 1);
+    int safeIndex = FMath::Clamp(rawViewMode, 0, ViewModeCount - 1);
     
     FString ViewModeControl = ViewModeNames[safeIndex];
     ImVec2 ViewModeTextSize = ImGui::CalcTextSize(GetData(ViewModeControl));
@@ -446,7 +446,6 @@ void ControlEditorPanel::CreateFlagButton() const
                 ActiveViewport->SetViewMode((EViewModeIndex)i);
                 FEngineLoop::GraphicDevice.ChangeRasterizer(ActiveViewport->GetViewMode());
                 FEngineLoop::Renderer.ChangeViewMode(ActiveViewport->GetViewMode());
-
             }
             if (bIsSelected)
             {

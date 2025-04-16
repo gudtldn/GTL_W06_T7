@@ -23,7 +23,9 @@ public:
     virtual void PrepareRender() override;
     virtual void Render(const std::shared_ptr<FEditorViewportClient>& Viewport) override;
     virtual void ClearRenderArr() override;
-    void UpdateLightBuffer(FLighting Light) const;
+
+    [[maybe_unused]]
+    void UpdateLightBuffer(const FLighting& Light) const;
 
 private:
     UAmbientLightComponent* AmbientLight;

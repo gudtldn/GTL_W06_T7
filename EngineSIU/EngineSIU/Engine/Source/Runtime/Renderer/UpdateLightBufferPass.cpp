@@ -131,7 +131,7 @@ void FUpdateLightBufferPass::ClearRenderArr()
     SpotLights.Empty();
 }
 
-void FUpdateLightBufferPass::UpdateLightBuffer(FLighting Light) const
+void FUpdateLightBufferPass::UpdateLightBuffer(const FLighting& Light) const
 {
 
 }
