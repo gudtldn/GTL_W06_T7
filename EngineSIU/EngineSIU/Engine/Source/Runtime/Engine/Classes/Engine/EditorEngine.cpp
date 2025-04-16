@@ -36,11 +36,6 @@ void UEditorEngine::Init()
         assert(AssetManager);
         AssetManager->InitAssetManager();
     }
-
-    for (const auto& Pair : UClass::GetClassMap())
-    {
-        (void)Pair.Value->GetDefaultObject();
-    }
 }
 
 void UEditorEngine::Tick(float DeltaTime)
