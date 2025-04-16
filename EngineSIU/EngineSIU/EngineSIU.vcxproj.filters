@@ -778,6 +778,10 @@
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\PointLightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\SpotLightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Renderer\EditorRenderPass.cpp" />
+    <ClCompile Include="Engine\Source\Editor\UnrealEd\SceneManager.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\CoreUObject\UObject\ObjectGlobals.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Core\Math\Vector4.cpp" />
+    <ClCompile Include="Engine\Source\Runtime\Core\Misc\Parse.cpp" />
     <ClCompile Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\AmbientLightComponent.cpp" />
     <ClCompile Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponentBase.cpp" />
@@ -869,6 +873,10 @@
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\PointLightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\SpotLightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Renderer\EditorRenderPass.h" />
+    <ClInclude Include="Engine\Source\Editor\UnrealEd\SceneManager.h" />
+    <ClInclude Include="Engine\Source\Runtime\CoreUObject\UObject\ObjectGlobals.h" />
+    <ClInclude Include="Engine\Source\Runtime\Core\Misc\Char.h" />
+    <ClInclude Include="Engine\Source\Runtime\Core\Misc\Parse.h" />
     <ClInclude Include="Engine\Source\Editor\LevelEditor\SlateAppMessageHandler.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\AmbientLightComponent.h" />
     <ClInclude Include="Engine\Source\Runtime\Engine\Classes\Components\Light\LightComponentBase.h" />
