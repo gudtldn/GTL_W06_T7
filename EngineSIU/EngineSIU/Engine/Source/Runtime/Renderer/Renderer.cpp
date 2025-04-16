@@ -95,6 +95,9 @@ void FRenderer::CreateConstantBuffers()
 
     UINT FogConstantBufferSize = sizeof(FFogConstants);
     BufferManager->CreateBufferGeneric<FFogConstants>("FFogConstants", nullptr, FogConstantBufferSize, D3D11_BIND_CONSTANT_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE);
+
+    UINT RenderNormalBufferSize = sizeof(FRenderNormalConstants);
+    BufferManager->CreateBufferGeneric<FRenderNormalConstants>("FRenderNormalConstants", nullptr, RenderNormalBufferSize, D3D11_BIND_CONSTANT_BUFFER, D3D11_USAGE_DYNAMIC, D3D11_CPU_ACCESS_WRITE);
 }
 
 void FRenderer::ReleaseConstantBuffer()
