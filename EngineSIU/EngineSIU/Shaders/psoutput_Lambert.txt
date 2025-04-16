@@ -1,0 +1,315 @@
+#line 1 "C:\\Users\\Jungle\\Desktop\\Suhyun\\7. Week6\\GTL_W06_T7\\EngineSIU\\EngineSIU\\Shaders\\StaticMeshPixelShader.hlsl"
+
+
+
+Texture2D Textures : register ( t0 ) ; 
+SamplerState Sampler : register ( s0 ) ; 
+
+cbuffer MatrixConstants : register ( b0 ) 
+{ 
+    row_major float4x4 Model ; 
+    row_major float4x4 MInverseTranspose ; 
+    float4 UUID ; 
+    bool isSelected ; 
+    float3 MatrixPad0 ; 
+} ; 
+cbuffer CameraConstants : register ( b1 ) 
+{ 
+    row_major float4x4 View ; 
+    row_major float4x4 Projection ; 
+    float3 CameraPosition ; 
+    float pad ; 
+} ; 
+
+#line 24
+cbuffer FlagConstants : register ( b4 ) 
+{ 
+    bool IsLit ; 
+    float3 flagPad0 ; 
+} 
+
+cbuffer SubMeshConstants : register ( b5 ) 
+{ 
+    bool IsSelectedSubMesh ; 
+    float3 SubMeshPad0 ; 
+} 
+
+cbuffer TextureConstants : register ( b6 ) 
+{ 
+    float2 UVOffset ; 
+    float2 TexturePad0 ; 
+} 
+
+
+
+#line 1 "C:\\Users\\Jungle\\Desktop\\Suhyun\\7. Week6\\GTL_W06_T7\\EngineSIU\\EngineSIU\\Shaders\\UberLit.hlsl"
+
+
+
+
+#line 1 "C:\\Users\\Jungle\\Desktop\\Suhyun\\7. Week6\\GTL_W06_T7\\EngineSIU\\EngineSIU\\Shaders\\Common.hlsl"
+
+
+
+struct FMaterial 
+{ 
+    float3 DiffuseColor ; 
+    float TransparencyScalar ; 
+    
+    float3 AmbientColor ; 
+    float DensityScalar ; 
+    
+    float3 SpecularColor ; 
+    float SpecularScalar ; 
+    
+    float3 EmissiveColor ; 
+    float MaterialPad0 ; 
+} ; 
+
+
+
+
+#line 5 "C:\\Users\\Jungle\\Desktop\\Suhyun\\7. Week6\\GTL_W06_T7\\EngineSIU\\EngineSIU\\Shaders\\UberLit.hlsl"
+
+
+
+
+
+
+
+
+
+#line 15
+struct AmbientLightInfo 
+{ 
+    float3 Color ; 
+    float Intensity ; 
+} ; 
+
+struct DirectionalLightInfo 
+{ 
+    float3 Direction ; 
+    float pad0 ; 
+    float3 Color ; 
+    float Intensity ; 
+} ; 
+
+struct PointLightInfo 
+{ 
+    float3 Position ; 
+    float pad0 ; 
+    float3 DiffuseColor ; 
+    float pad1 ; 
+    float3 SpecularColor ; 
+    float pad2 ; 
+    float Intensity ; 
+    float m_fAttRadius ; 
+    float m_fAttenuation ; 
+    float pad3 ; 
+} ; 
+
+struct SpotLightInfo 
+{ 
+    float3 Position ; 
+    float pad0 ; 
+    float3 Direction ; 
+    float pad1 ; 
+    float3 DiffuseColor ; 
+    float pad2 ; 
+    float3 SpecularColor ; 
+    float pad3 ; 
+    float Intensity ; 
+    float m_fAttRadius ; 
+    float m_fFalloff ; 
+    float m_fAttenuation ; 
+} ; 
+
+cbuffer Lighting : register ( b2 ) 
+{ 
+    AmbientLightInfo AmbientLight ; 
+    DirectionalLightInfo DirectionalLight ; 
+    PointLightInfo PointLights [ 4 ] ; 
+    SpotLightInfo SpotLights [ 4 ] ; 
+} ; 
+
+cbuffer MaterialConstants : register ( b3 ) 
+{ 
+    FMaterial Material ; 
+} 
+
+#line 75
+float4 CalculateSpotLight ( SpotLightInfo light , float3 vPosition , float3 vNormal ) 
+{ 
+    
+    float3 vToLight = light . Position - vPosition ; 
+    float fDistance = length ( vToLight ) ; 
+    
+#line 82
+    if ( fDistance > light . m_fAttRadius ) 
+    { 
+        return float4 ( 0.0f , 0.0f , 0.0f , 1.0f ) ; 
+    } 
+    
+    float fSpecularFactor = 0.0f ; 
+    vToLight /= fDistance ; 
+    
+    float fDiffuseFactor = saturate ( dot ( vNormal , vToLight ) ) ; 
+    
+    if ( fDiffuseFactor > 0.0f ) 
+    { 
+        float3 vView = normalize ( CameraPosition - vPosition ) ; 
+        float3 vHalf = normalize ( vToLight + vView ) ; 
+        fSpecularFactor = pow ( max ( dot ( normalize ( vNormal ) , vHalf ) , 0.0f ) , 32 ) ; 
+    } 
+    
+    float fSpotFactor = pow ( max ( dot ( - vToLight , light . Direction ) , 0.0f ) , light . m_fFalloff ) ; 
+    float fAttenuationFactor = 1.0f / ( 1.0f + light . m_fAttenuation * fDistance * fDistance ) ; 
+    
+    float3 lit = ( light . DiffuseColor . rgb * fDiffuseFactor * Material . DiffuseColor ) + 
+    ( light . SpecularColor . rgb * fSpecularFactor * Material . SpecularColor ) ; 
+    
+#line 106
+    return float4 ( lit * fAttenuationFactor * fSpotFactor * light . Intensity , 1.0f ) ; 
+} 
+
+float4 CalculatePointLight ( PointLightInfo light , float3 vPosition , float3 vNormal ) 
+{ 
+    
+    float3 vToLight = light . Position - vPosition ; 
+    float fDistance = length ( vToLight ) ; 
+    
+#line 116
+    if ( fDistance > light . m_fAttRadius ) 
+    { 
+        return float4 ( 0.0f , 0.0f , 0.0f , 1.0f ) ; 
+    } 
+    
+    float fSpecularFactor = 0.0f ; 
+    vToLight /= fDistance ; 
+    float fDiffuseFactor = saturate ( dot ( vNormal , vToLight ) ) ; 
+    
+    if ( fDiffuseFactor > 0.0f ) 
+    { 
+        float3 vView = normalize ( CameraPosition - vPosition ) ; 
+        float3 vHalf = normalize ( vToLight + vView ) ; 
+        fSpecularFactor = pow ( max ( dot ( normalize ( vNormal ) , vHalf ) , 0.0f ) , 32 ) ; 
+    } 
+    
+    float fAttenuationFactor = 1.0f / ( 1.0f + light . m_fAttenuation * fDistance * fDistance ) ; 
+    
+    float3 lit = ( light . DiffuseColor . rgb * fDiffuseFactor * Material . DiffuseColor ) + 
+    ( light . SpecularColor . rgb * fSpecularFactor * Material . SpecularColor ) ; 
+    
+    return float4 ( lit * fAttenuationFactor * light . Intensity , 1.0f ) ; 
+} 
+
+float3 CalculateAmbientLight ( ) 
+{ 
+    return AmbientLight . Color * AmbientLight . Intensity * Material . AmbientColor . rgb ; 
+} 
+
+float3 CalculateDirectionalLight ( float3 normal ) 
+{ 
+    float3 N = normalize ( normal ) ; 
+    float diffuseFactor = saturate ( dot ( N , - DirectionalLight . Direction ) ) ; 
+    
+#line 152
+    return DirectionalLight . Color * DirectionalLight . Intensity * diffuseFactor ; 
+} 
+
+#line 156
+struct VertexInput 
+{ 
+    float3 worldPos ; 
+    float3 normalWS ; 
+    float4 color ; 
+} ; 
+
+struct PixelInput 
+{ 
+    float4 position : SV_POSITION ; 
+    float3 worldPos ; 
+    float3 normal ; 
+    float2 texcoord ; 
+    float4 color ; 
+} ; 
+
+float4 Uber_VS ( VertexInput input ) 
+{ 
+    
+#line 192
+    
+    return input . color ; 
+    
+} 
+
+#line 198
+float4 Uber_PS ( PixelInput Input ) 
+{ 
+    float3 finalColor ; 
+    
+#line 203
+    float3 textureColor = Textures . Sample ( Sampler , Input . texcoord ) . rgb ; 
+    float3 matDiffuse = Material . DiffuseColor . rgb ; 
+    bool hasTexture = any ( textureColor != float3 ( 0 , 0 , 0 ) ) ; 
+    float3 baseColor = hasTexture ? textureColor : matDiffuse ; 
+    
+    float3 emissive = Material . EmissiveColor ; 
+    float3 normal = normalize ( Input . normal ) ; 
+    float3 ambient = AmbientLight . Color * AmbientLight . Intensity * Material . AmbientColor . rgb ; 
+    
+#line 213
+    float3 dirLightDir = normalize ( - DirectionalLight . Direction ) ; 
+    float diffuseFactor = saturate ( dot ( normal , dirLightDir ) ) ; 
+    float3 directionalDiffuse = DirectionalLight . Color * DirectionalLight . Intensity * Material . DiffuseColor . rgb * diffuseFactor ; 
+    
+#line 319
+    
+    return float4 ( finalColor , 1.0f ) ; 
+} 
+
+
+
+#line 44 "C:\\Users\\Jungle\\Desktop\\Suhyun\\7. Week6\\GTL_W06_T7\\EngineSIU\\EngineSIU\\Shaders\\StaticMeshPixelShader.hlsl"
+struct PS_INPUT 
+{ 
+    float4 position : SV_POSITION ; 
+    float3 worldPos : TEXCOORD0 ; 
+    float4 color : COLOR ; 
+    float3 normal : NORMAL ; 
+    float normalFlag : TEXCOORD1 ; 
+    float2 texcoord : TEXCOORD2 ; 
+    int materialIndex : MATERIAL_INDEX ; 
+} ; 
+
+struct PS_OUTPUT 
+{ 
+    float4 color : SV_Target0 ; 
+    float4 UUID : SV_Target1 ; 
+} ; 
+
+#line 64
+PS_OUTPUT mainPS ( PS_INPUT input ) 
+{ 
+    PS_OUTPUT output ; 
+    output . UUID = UUID ; 
+    
+#line 71
+    
+    PixelInput uberPsInput ; 
+    uberPsInput . position = input . position ; 
+    uberPsInput . worldPos = input . worldPos ; 
+    uberPsInput . normal = input . normal ; 
+    uberPsInput . texcoord = input . texcoord ; 
+    uberPsInput . color = input . color ; 
+    
+    output . color = Uber_PS ( uberPsInput ) ; 
+    
+    if ( isSelected ) 
+    { 
+        output . color += float4 ( 0.02 , 0.02 , 0.02 , 1 ) ; 
+    } 
+    
+    return output ; 
+} 
+ 

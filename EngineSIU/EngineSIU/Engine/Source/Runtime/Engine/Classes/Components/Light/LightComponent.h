@@ -28,15 +28,21 @@ public:
     float GetAttenuation();
     float GetAttenuationRadius();
     float GetFalloff();
-    FLight GetLightInfo() const { return Light; };
 protected:
-
     FBoundingBox AABB;
-    FLight Light;
+    
+    FVector DiffuseColor;
+    FVector SpecularColor;
+    float Attenuation;
+    float AttRadius;
+    float Intensity;
+    float Falloff;
+    // ELightType Type;
+    FVector Direction;
 
 public:
     FBoundingBox GetBoundingBox() const {return AABB;}
     
-    float GetIntensity() const {return Light.Intensity;}
+    float GetIntensity() const {return Intensity;}
     
 };

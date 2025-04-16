@@ -18,64 +18,72 @@ UObject* ULightComponent::Duplicate(UObject* InOuter)
 {
     ThisClass* NewComponent = Cast<ThisClass>(Super::Duplicate(InOuter));
 
-    NewComponent->Light = Light;
-
+    // NewComponent->Light = Light;
+    NewComponent->DiffuseColor = DiffuseColor;
+    NewComponent->SpecularColor = SpecularColor;
+    NewComponent->Attenuation = Attenuation;
+    NewComponent->AttRadius = AttRadius;
+    NewComponent->Intensity = Intensity;
+    NewComponent->Falloff = Falloff;
+    //NewComponent-> Type = Type;
+    NewComponent-> Direction = Direction;
+    
     return NewComponent;
 }
 
 void ULightComponent::SetDiffuseColor(FLinearColor NewColor)
 {
-    Light.DiffuseColor = FVector(NewColor.R, NewColor.G, NewColor.B);
+    DiffuseColor = FVector(NewColor.R, NewColor.G, NewColor.B);
 }
 
 void ULightComponent::SetSpecularColor(FLinearColor NewColor)
 {
-   Light.SpecularColor = FVector(NewColor.R, NewColor.G, NewColor.B);
+   SpecularColor = FVector(NewColor.R, NewColor.G, NewColor.B);
 }
 
 void ULightComponent::SetAttenuation(float Attenuation)
 {
-    Light.Attenuation = Attenuation;
+    this->Attenuation = Attenuation;
 }
 
 void ULightComponent::SetAttenuationRadius(float AttenuationRadius)
 {
-    Light.AttRadius = AttenuationRadius;
+    AttRadius = AttenuationRadius;
 }
 
 void ULightComponent::SetIntensity(float Intensity)
 {
-    Light.Intensity = Intensity;
+    this->Intensity = Intensity;
 }
 
 void ULightComponent::SetFalloff(float fallOff)
 {
-    Light.Falloff = fallOff;
+    Falloff = fallOff;
 }
 
 FLinearColor ULightComponent::GetDiffuseColor()
 {
-    return FLinearColor(Light.DiffuseColor.X, Light.DiffuseColor.Y, Light.DiffuseColor.Z, 1);
+    return FLinearColor(DiffuseColor.X, DiffuseColor.Y, DiffuseColor.Z, 1);
 }
 
 FLinearColor ULightComponent::GetSpecularColor()
 {
-    return FLinearColor(Light.SpecularColor.X, Light.SpecularColor.Y, Light.SpecularColor.Z, 1);
+    return FLinearColor(SpecularColor.X, SpecularColor.Y, SpecularColor.Z, 1);
 }
 
 float ULightComponent::GetAttenuation()
 {
-    return Light.Attenuation;
+    return Attenuation;
 }
 
 float ULightComponent::GetAttenuationRadius()
 {
-    return Light.AttRadius;
+    return AttRadius;
 }
 
 float ULightComponent::GetFalloff()
 {
-    return Light.Falloff;
+    return Falloff;
 }
 
 void ULightComponent::InitializeLight()
@@ -83,8 +91,8 @@ void ULightComponent::InitializeLight()
     AABB.max = { 1.f,1.f,0.1f };
     AABB.min = { -1.f,-1.f,-0.1f };
     
-    Light = FLight();
-    Light.Enabled = 1;
+    // Light = FLighting();
+    // Light.Enabled = 1;
 }
 
 void ULightComponent::TickComponent(float DeltaTime)

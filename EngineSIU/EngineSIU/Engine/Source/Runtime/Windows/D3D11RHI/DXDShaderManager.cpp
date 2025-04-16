@@ -99,10 +99,17 @@ HRESULT FDXDShaderManager::AddPixelShader(const std::wstring& Key, const std::ws
         return S_FALSE;
 
     ID3DBlob* PsBlob = nullptr;
+    ID3DBlob* ErrorBlob = nullptr;
     FShaderIncludeHandler IncludesHandler;
-    hr = D3DCompileFromFile(FileName.c_str(), nullptr, &IncludesHandler, EntryPoint.c_str(), "ps_5_0", shaderFlags, 0, &PsBlob, nullptr);
+    hr = D3DCompileFromFile(FileName.c_str(), nullptr, &IncludesHandler, EntryPoint.c_str(), "ps_5_0", shaderFlags, 0, &PsBlob, &ErrorBlob);
     if (FAILED(hr))
+    {
+        if (ErrorBlob) {
+            OutputDebugStringA((char*)ErrorBlob->GetBufferPointer());
+            ErrorBlob->Release();
+        }
         return hr;
+    }
 
     ID3D11PixelShader* NewPixelShader;
     hr = DXDDevice->CreatePixelShader(PsBlob->GetBufferPointer(), PsBlob->GetBufferSize(), nullptr, &NewPixelShader);
@@ -119,9 +126,58 @@ HRESULT FDXDShaderManager::AddPixelShader(const std::wstring& Key, const std::ws
     return S_OK;
 }
 
-HRESULT FDXDShaderManager::AddVertexShader(const std::wstring& Key, const std::wstring& FileName)
+HRESULT FDXDShaderManager::AddPixelShader(
+    const std::wstring& Key,
+    const std::wstring& FileName,
+    const std::string& EntryPoint,
+    const D3D_SHADER_MACRO* Defines)
 {
-    return E_NOTIMPL;
+    UINT shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#ifdef _DEBUG
+    shaderFlags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    if (DXDDevice == nullptr)
+        return S_FALSE;
+
+    ID3DBlob* PsBlob = nullptr;
+    ID3DBlob* errorBlob = nullptr;
+    FShaderIncludeHandler IncludesHandler;
+    
+    HRESULT hr = D3DCompileFromFile(
+        FileName.c_str(),
+        Defines, // << 매크로 정의 들어가는 핵심 부분
+        &IncludesHandler,
+        EntryPoint.c_str(),
+        "ps_5_0",
+        shaderFlags,
+        0,
+        &PsBlob,
+        &errorBlob);
+
+    if (FAILED(hr)) {
+        if (errorBlob) {
+            std::string errMsg((char*)errorBlob->GetBufferPointer(), errorBlob->GetBufferSize());
+            std::cerr << "Shader compile error: " << errMsg << std::endl;
+            errorBlob->Release();
+        }
+        return hr;
+    }
+        
+
+    ID3D11PixelShader* NewPixelShader;
+    hr = DXDDevice->CreatePixelShader(PsBlob->GetBufferPointer(), PsBlob->GetBufferSize(), nullptr, &NewPixelShader);
+
+    if (PsBlob)
+        PsBlob->Release();
+
+    if (FAILED(hr))
+        return hr;
+
+    PixelShaders[Key] = NewPixelShader;
+    PixelShaders[Key].SetFileMetadata(std::make_unique<FShaderFileMetadata>(EntryPoint, FileName, IncludesHandler.GetIncludePaths()));
+
+    return S_OK;
 }
 
 HRESULT FDXDShaderManager::AddVertexShader(const std::wstring& Key, const std::wstring& FileName, const std::string& EntryPoint)
@@ -157,6 +213,60 @@ HRESULT FDXDShaderManager::AddVertexShader(const std::wstring& Key, const std::w
     VertexShaders[Key].SetFileMetadata(std::make_unique<FShaderFileMetadata>(EntryPoint, FileName, IncludesHandler.GetIncludePaths()));
 
     VertexShaderCSO->Release();
+
+    return S_OK;
+}
+
+HRESULT FDXDShaderManager::AddVertexShader(
+    const std::wstring& Key,
+    const std::wstring& FileName,
+    const std::string& EntryPoint,
+    const D3D_SHADER_MACRO* Defines)
+{
+    if (DXDDevice == nullptr)
+        return S_FALSE;
+
+    UINT shaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
+#ifdef _DEBUG
+    shaderFlags |= D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION;
+#endif
+
+    ID3DBlob* vsBlob = nullptr;
+    ID3DBlob* errorBlob = nullptr;
+    FShaderIncludeHandler IncludesHandler;
+
+    HRESULT hr = D3DCompileFromFile(
+        FileName.c_str(),
+        Defines,
+        &IncludesHandler,
+        EntryPoint.c_str(),
+        "vs_5_0",
+        shaderFlags,
+        0,
+        &vsBlob,
+        &errorBlob);
+
+    if (FAILED(hr))
+    {
+        if (errorBlob)
+        {
+            OutputDebugStringA((char*)errorBlob->GetBufferPointer());
+            errorBlob->Release();
+        }
+        return hr;
+    }
+
+    ID3D11VertexShader* NewVertexShader;
+    hr = DXDDevice->CreateVertexShader(vsBlob->GetBufferPointer(), vsBlob->GetBufferSize(), nullptr, &NewVertexShader);
+    if (FAILED(hr))
+    {
+        vsBlob->Release();
+        return hr;
+    }
+
+    VertexShaders[Key] = NewVertexShader;
+    VertexShaders[Key].SetFileMetadata(std::make_unique<FShaderFileMetadata>(EntryPoint, FileName, IncludesHandler.GetIncludePaths()));
+    vsBlob->Release();
 
     return S_OK;
 }
@@ -240,6 +350,81 @@ ID3D11PixelShader* FDXDShaderManager::GetPixelShaderByKey(const std::wstring& Ke
         return *PixelShaders.Find(Key);
     }
     return nullptr;
+}
+
+FShaderPipeline FDXDShaderManager::GetShaderPipelineByLightingModel(ELightingModel model) const
+{
+    static const std::wstring keys[] = {
+        L"Gouraud", L"Lambert", L"BlinnPhong", L"Unlit"
+    };
+
+    const std::wstring& psKey = keys[static_cast<int>(model)];
+    const std::wstring& vsKey = (model == ELightingModel::Gouraud)
+        ? psKey
+        : L"StaticMeshVertexShader";
+
+    FShaderPipeline pipeline;
+    pipeline.VertexShader = GetVertexShaderByKey(vsKey);
+    pipeline.PixelShader = GetPixelShaderByKey(psKey);
+
+    return pipeline;
+}
+
+void FDXDShaderManager::RegisterShaderVariants()
+{
+    const std::wstring vsPath = L"Shaders/StaticMeshVertexShader.hlsl";
+    const std::wstring psPath = L"Shaders/StaticMeshPixelShader.hlsl";
+    const std::string vsEntry = "mainVS";
+    const std::string psEntry = "mainPS";
+
+    struct Variant
+    {
+        std::wstring Key;
+        std::string LightingModelValue;
+    };
+
+    std::vector<Variant> variants = {
+        { L"Gouraud",    "1" },
+        { L"Lambert",    "2" },
+        { L"BlinnPhong", "3" },
+        { L"Unlit",      "4" },
+    };
+    for (const auto& variant : variants)
+    {
+        // Gouraud일 경우에만 Vertex Shader 따로 생성
+        if (variant.Key == variants[0].Key)
+        {
+            if (!VertexShaders.Contains(variant.Key))
+            {
+                D3D_SHADER_MACRO vsDefines[] = {
+                    { "VERTEX_SHADER", "1" },
+                    { "LIGHTING_MODEL", variant.LightingModelValue.c_str() },
+                    { nullptr, nullptr }
+                };
+
+                HRESULT hr = AddVertexShader(variant.Key, vsPath, vsEntry, vsDefines);
+                if (FAILED(hr))
+                {
+                    OutputDebugStringA(("Failed to compile vertex shader: " + std::string(variant.Key.begin(), variant.Key.end()) + "\n").c_str());
+                }
+            }
+        }
+        
+        if (!PixelShaders.Contains(variant.Key))
+        {
+            D3D_SHADER_MACRO psDefines[] = {
+                { "PIXEL_SHADER", "1" },
+                { "LIGHTING_MODEL", variant.LightingModelValue.c_str() },
+                { nullptr, nullptr }
+            };
+
+            HRESULT hr = AddPixelShader(variant.Key, psPath, psEntry, psDefines);
+            if (FAILED(hr))
+            {
+                OutputDebugStringA(("Failed to compile pixel shader: " + std::string(variant.Key.begin(), variant.Key.end()) + "\n").c_str());
+            }
+        }
+    }
 }
 
 bool FDXDShaderManager::HandleHotReloadShader()
