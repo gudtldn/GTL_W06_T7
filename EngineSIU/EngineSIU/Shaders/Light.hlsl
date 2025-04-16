@@ -96,7 +96,7 @@ float4 PointLight(int nIndex, float3 vPosition, float3 vNormal)
 
     float fAttenuationFactor = 1.0f / (1.0f + gLights[nIndex].m_fAttenuation * fDistance * fDistance);
    
-    float3 lit = (gcGlobalAmbientLight * Material.AmbientColor.rgb) +
+    float3 lit = //(gcGlobalAmbientLight * Material.AmbientColor.rgb) +
                  (gLights[nIndex].m_cDiffuse.rgb * fDiffuseFactor * Material.DiffuseColor) +
                  (gLights[nIndex].m_cSpecular.rgb * fSpecularFactor * Material.SpecularColor);
 
@@ -125,7 +125,6 @@ float4 Lighting(float3 vPosition, float3 vNormal)
     // 전역 환경광 추가
     cColor += gcGlobalAmbientLight;
     cColor.a = 1;
-    
     return cColor;
 }
 

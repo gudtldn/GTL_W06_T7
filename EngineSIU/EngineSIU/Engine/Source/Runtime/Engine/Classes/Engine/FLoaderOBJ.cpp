@@ -309,9 +309,20 @@ bool FLoaderOBJ::ParseMaterial(FObjInfo& OutObjInfo, OBJ::FStaticMeshRenderData&
 
             FWString TexturePath = OutObjInfo.FilePath + OutFStaticMesh.Materials[MaterialIndex].DiffuseTextureName.ToWideString();
             OutFStaticMesh.Materials[MaterialIndex].DiffuseTexturePath = TexturePath;
-            OutFStaticMesh.Materials[MaterialIndex].bHasTexture = true;
+            OutFStaticMesh.Materials[MaterialIndex].bHasDiffuseTexture = true;
 
             CreateTextureFromFile(OutFStaticMesh.Materials[MaterialIndex].DiffuseTexturePath);
+        }
+
+        if (Token == "map_Bump")
+        {
+            LineStream >> Line;
+            OutFStaticMesh.Materials[MaterialIndex].BumpTextureName = Line;
+            FWString TexturePath = OutObjInfo.FilePath + OutFStaticMesh.Materials[MaterialIndex].BumpTextureName.ToWideString();
+            OutFStaticMesh.Materials[MaterialIndex].BumpTexturePath = TexturePath;
+            OutFStaticMesh.Materials[MaterialIndex].bHasBumpTexture = true;
+
+            CreateTextureFromFile(OutFStaticMesh.Materials[MaterialIndex].BumpTexturePath);
         }
     }
 
@@ -335,9 +346,20 @@ bool FLoaderOBJ::ConvertToStaticMesh(const FObjInfo& RawData, OBJ::FStaticMeshRe
 
         // 키 생성 (v/vt/vn 조합)
         std::string Key = std::to_string(VertexIndex) + "/" + std::to_string(UVIndex) + "/" + std::to_string(NormalIndex);
+		uint32 MaterialIndex = 0;
+		for (int32 j = 0; j < OutStaticMesh.MaterialSubsets.Num(); j++)
+		{
+			const FMaterialSubset& Subset = OutStaticMesh.MaterialSubsets[j];
+			if (i >= Subset.IndexStart && i < Subset.IndexStart + Subset.IndexCount)
+			{
+				MaterialIndex = Subset.MaterialIndex;
+				break;
+			}
+		}
+        bool bUseBumpTexture = (OutStaticMesh.Materials.Num() > MaterialIndex && OutStaticMesh.Materials[MaterialIndex].bHasBumpTexture);
 
         uint32 FinalIndex;
-        if (IndexMap.Contains(Key))
+        if (IndexMap.Contains(Key) && !bUseBumpTexture)
         {
             FinalIndex = IndexMap[Key];
         }
@@ -347,6 +369,8 @@ bool FLoaderOBJ::ConvertToStaticMesh(const FObjInfo& RawData, OBJ::FStaticMeshRe
             StaticMeshVertex.X = RawData.Vertices[VertexIndex].X;
             StaticMeshVertex.Y = RawData.Vertices[VertexIndex].Y;
             StaticMeshVertex.Z = RawData.Vertices[VertexIndex].Z;
+
+			StaticMeshVertex.MaterialIndex = MaterialIndex;
 
             StaticMeshVertex.R = 0.0f; StaticMeshVertex.G = 0.0f; StaticMeshVertex.B = 0.0f; StaticMeshVertex.A = 1.0f; // 기본 색상
 
@@ -376,15 +400,6 @@ bool FLoaderOBJ::ConvertToStaticMesh(const FObjInfo& RawData, OBJ::FStaticMeshRe
                 CalculateTangent(Vertex2, Vertex0, Vertex1);
             }
 
-            for (int32 j = 0; j < OutStaticMesh.MaterialSubsets.Num(); j++)
-            {
-                const FMaterialSubset& Subset = OutStaticMesh.MaterialSubsets[j];
-                if ( i >= Subset.IndexStart && i < Subset.IndexStart + Subset.IndexCount)
-                {
-                    StaticMeshVertex.MaterialIndex = Subset.MaterialIndex;
-                    break;
-                }
-            }
 
             FinalIndex = OutStaticMesh.Vertices.Num();
             OutStaticMesh.Vertices.Add(StaticMeshVertex);
@@ -393,6 +408,35 @@ bool FLoaderOBJ::ConvertToStaticMesh(const FObjInfo& RawData, OBJ::FStaticMeshRe
 
         OutStaticMesh.Indices.Add(FinalIndex);
     }
+
+	// //모든 인덱스를 순회한 뒤 정점들의 탄젠트 벡터를 평균화
+	//for (int32 i = 0; i < OutStaticMesh.Vertices.Num(); i++)
+	//{
+	//	FStaticMeshVertex& Vertex = OutStaticMesh.Vertices[i];
+	//	if (Vertex.TangentCalculatedCount > 0)
+	//	{
+	//		Vertex.TangentX /= Vertex.TangentCalculatedCount;
+	//		Vertex.TangentY /= Vertex.TangentCalculatedCount;
+	//		Vertex.TangentZ /= Vertex.TangentCalculatedCount;
+	//	}
+	//	else if (Vertex.TangentCalculatedCount == 0)
+	//	{
+	//		Vertex.TangentX = 1.f;
+	//		Vertex.TangentY = 0.f;
+	//		Vertex.TangentZ = 0.f;
+	//	}
+
+	//	FVector Normal = FVector(Vertex.NormalX, Vertex.NormalY, Vertex.NormalZ).GetSafeNormal();
+	//	FVector Tangent = FVector(Vertex.TangentX, Vertex.TangentY, Vertex.TangentZ).GetSafeNormal();
+
+	//	// Gram-Schmidt orthogonalization
+	//	Tangent = (Tangent - Normal * FVector::DotProduct(Normal, Tangent)).GetSafeNormal();
+
+	//	Vertex.TangentX = Tangent.X;
+	//	Vertex.TangentY = Tangent.Y;
+	//	Vertex.TangentZ = Tangent.Z;
+	//}
+
 
     // Calculate StaticMesh BoundingBox
     ComputeBoundingBox(OutStaticMesh.Vertices, OutStaticMesh.BoundingBoxMin, OutStaticMesh.BoundingBoxMax);
@@ -437,28 +481,82 @@ void FLoaderOBJ::ComputeBoundingBox(const TArray<FStaticMeshVertex>& InVertices,
     OutMaxVector = MaxVector;
 }
 
+//void FLoaderOBJ::CalculateTangent(FStaticMeshVertex& PivotVertex, const FStaticMeshVertex& Vertex1, const FStaticMeshVertex& Vertex2)
+//{
+//	const float TangentDenominatorEpsilon = 1e-6f;
+//
+//    const float s1 = Vertex1.U - PivotVertex.U;
+//    const float t1 = Vertex1.V - PivotVertex.V;
+//    const float s2 = Vertex2.U - PivotVertex.U;
+//    const float t2 = Vertex2.V - PivotVertex.V;
+//    const float E1x = Vertex1.X - PivotVertex.X;
+//    const float E1y = Vertex1.Y - PivotVertex.Y;
+//    const float E1z = Vertex1.Z - PivotVertex.Z;
+//    con
+// 
+//    PivotVertex.TangentY = Tangent.Y;
+//    PivotVertex.TangentZ = Tangent.Z;
+//	PivotVertex.TangentCalculatedCount++;
+//}
+
 void FLoaderOBJ::CalculateTangent(FStaticMeshVertex& PivotVertex, const FStaticMeshVertex& Vertex1, const FStaticMeshVertex& Vertex2)
 {
-    const float s1 = Vertex1.U - PivotVertex.U;
-    const float t1 = Vertex1.V - PivotVertex.V;
-    const float s2 = Vertex2.U - PivotVertex.U;
-    const float t2 = Vertex2.V - PivotVertex.V;
-    const float E1x = Vertex1.X - PivotVertex.X;
-    const float E1y = Vertex1.Y - PivotVertex.Y;
-    const float E1z = Vertex1.Z - PivotVertex.Z;
-    const float E2x = Vertex2.X - PivotVertex.X;
-    const float E2y = Vertex2.Y - PivotVertex.Y;
-    const float E2z = Vertex2.Z - PivotVertex.Z;
-    const float f = 1.f / (s1 * t2 - s2 * t1);
-    const float Tx = f * (t2 * E1x - t1 * E2x);
-    const float Ty = f * (t2 * E1y - t1 * E2y);
-    const float Tz = f * (t2 * E1z - t1 * E2z);
-
-    FVector Tangent = FVector(Tx, Ty, Tz).Normalize();
-
-    PivotVertex.TangentX = Tangent.X;
-    PivotVertex.TangentY = Tangent.Y;
-    PivotVertex.TangentZ = Tangent.Z;
+	const float s1 = Vertex1.U - PivotVertex.U;
+	const float t1 = Vertex1.V - PivotVertex.V;
+	const float s2 = Vertex2.U - PivotVertex.U;
+	const float t2 = Vertex2.V - PivotVertex.V;
+	// UV 좌표 차이가 너무 작은 경우 (거의 0에 가까운 경우) 예외 처리
+	const float det = s1 * t2 - s2 * t1;
+	if (fabs(det) < 1e-6f)
+	{
+		// 기본 탄젠트 설정 - 노말에 수직인 아무 벡터나 사용
+		FVector Normal = FVector(PivotVertex.NormalX, PivotVertex.NormalY, PivotVertex.NormalZ);
+		FVector Tangent;
+		// 노말의 절대값이 가장 작은 축을 찾아 직교하는 벡터 생성
+		if (fabs(Normal.X) < fabs(Normal.Y) && fabs(Normal.X) < fabs(Normal.Z))
+			Tangent = FVector(0.0f, -Normal.Z, Normal.Y);
+		else if (fabs(Normal.Y) < fabs(Normal.Z))
+			Tangent = FVector(-Normal.Z, 0.0f, Normal.X);
+		else
+			Tangent = FVector(-Normal.Y, Normal.X, 0.0f);
+		Tangent.Normalize();
+		PivotVertex.TangentX = Tangent.X;
+		PivotVertex.TangentY = Tangent.Y;
+		PivotVertex.TangentZ = Tangent.Z;
+		return;
+	}
+	const float E1x = Vertex1.X - PivotVertex.X;
+	const float E1y = Vertex1.Y - PivotVertex.Y;
+	const float E1z = Vertex1.Z - PivotVertex.Z;
+	const float E2x = Vertex2.X - PivotVertex.X;
+	const float E2y = Vertex2.Y - PivotVertex.Y;
+	const float E2z = Vertex2.Z - PivotVertex.Z;
+	const float f = 1.f / det;
+	const float Tx = f * (t2 * E1x - t1 * E2x);
+	const float Ty = f * (t2 * E1y - t1 * E2y);
+	const float Tz = f * (t2 * E1z - t1 * E2z);
+	FVector Tangent = FVector(Tx, Ty, Tz);
+	// 계산된 탄젠트의 길이가 너무 작은 경우 처리
+	if (Tangent.LengthSquared() < 1e-6f)
+	{
+		// 위와 동일한 기본 탄젠트 설정 코드
+		FVector Normal = FVector(PivotVertex.NormalX, PivotVertex.NormalY, PivotVertex.NormalZ);
+		if (fabs(Normal.X) < fabs(Normal.Y) && fabs(Normal.X) < fabs(Normal.Z))
+			Tangent = FVector(0.0f, -Normal.Z, Normal.Y);
+		else if (fabs(Normal.Y) < fabs(Normal.Z))
+			Tangent = FVector(-Normal.Z, 0.0f, Normal.X);
+		else
+			Tangent = FVector(-Normal.Y, Normal.X, 0.0f);
+	}
+	Tangent.Normalize();
+	// 노말과 수직하게 만들기 (추가 정밀도를 위해)
+	FVector Normal = FVector(PivotVertex.NormalX, PivotVertex.NormalY, PivotVertex.NormalZ);
+	Tangent = (Tangent - Normal * FVector::DotProduct(Normal, Tangent)).GetSafeNormal();
+    //Tangent = (Tangent - Normal * FVector::DotProduct(Normal, Tangent)).Normalize();
+	PivotVertex.TangentX = Tangent.X;
+	PivotVertex.TangentY = Tangent.Y;
+	PivotVertex.TangentZ = Tangent.Z;
+	//PivotVertex.TangentCalculatedCount++;
 }
 
 OBJ::FStaticMeshRenderData* FManagerOBJ::LoadObjStaticMeshAsset(const FString& PathFileName)
@@ -568,7 +666,8 @@ bool FManagerOBJ::SaveStaticMeshToBinary(const FWString& FilePath, const OBJ::FS
     for (const FObjMaterialInfo& Material : StaticMesh.Materials)
     {
         Serializer::WriteFString(File, Material.MaterialName);
-        File.write(reinterpret_cast<const char*>(&Material.bHasTexture), sizeof(Material.bHasTexture));
+        File.write(reinterpret_cast<const char*>(&Material.bHasDiffuseTexture), sizeof(Material.bHasDiffuseTexture));
+        File.write(reinterpret_cast<const char*>(&Material.bHasBumpTexture), sizeof(Material.bHasBumpTexture));
         File.write(reinterpret_cast<const char*>(&Material.bTransparent), sizeof(Material.bTransparent));
         File.write(reinterpret_cast<const char*>(&Material.Diffuse), sizeof(Material.Diffuse));
         File.write(reinterpret_cast<const char*>(&Material.Specular), sizeof(Material.Specular));
@@ -649,7 +748,8 @@ bool FManagerOBJ::LoadStaticMeshFromBinary(const FWString& FilePath, OBJ::FStati
     for (FObjMaterialInfo& Material : OutStaticMesh.Materials)
     {
         Serializer::ReadFString(File, Material.MaterialName);
-        File.read(reinterpret_cast<char*>(&Material.bHasTexture), sizeof(Material.bHasTexture));
+        File.read(reinterpret_cast<char*>(&Material.bHasDiffuseTexture), sizeof(Material.bHasDiffuseTexture));
+        File.read(reinterpret_cast<char*>(&Material.bHasBumpTexture), sizeof(Material.bHasBumpTexture));
         File.read(reinterpret_cast<char*>(&Material.bTransparent), sizeof(Material.bTransparent));
         File.read(reinterpret_cast<char*>(&Material.Diffuse), sizeof(Material.Diffuse));
         File.read(reinterpret_cast<char*>(&Material.Specular), sizeof(Material.Specular));

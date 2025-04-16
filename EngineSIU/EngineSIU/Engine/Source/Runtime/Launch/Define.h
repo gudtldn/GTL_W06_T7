@@ -20,10 +20,11 @@ struct FStaticMeshVertex
 {
     float X, Y, Z;    // Position
     float NormalX, NormalY, NormalZ;
-    float TangentX, TangentY, TangentZ;
+    float TangentX = 0.f, TangentY = 0.f , TangentZ = 0.f;
     float U = 0, V = 0;
     float R, G, B, A; // Color
     uint32 MaterialIndex;
+    //uint32 TangentCalculatedCount = 0; // 탄젠트 계산 횟수
 };
 
 // Material Subset
@@ -75,7 +76,8 @@ struct FObjMaterialInfo
 {
     FString MaterialName;  // newmtl : Material Name.
 
-    bool bHasTexture = false;  // Has Texture?
+    bool bHasDiffuseTexture = false;  // Has Diffuse Texture?
+    bool bHasBumpTexture = false;     // Has Bump Texture?
     bool bTransparent = false; // Has alpha channel?
 
     FVector Diffuse;  // Kd : Diffuse (Vector4)
@@ -317,8 +319,8 @@ struct FMaterialConstants {
     float SpecularScalar;
 
     FVector EmmisiveColor;
-    float MaterialPad0;
-
+    
+    int bUseBumpMap;
 };
 
 struct FPerObjectConstantBuffer {

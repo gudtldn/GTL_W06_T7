@@ -1,7 +1,9 @@
 // staticMeshPixelShader.hlsl
 
 Texture2D Textures : register(t0);
+Texture2D BumpTexture : register(t1);
 SamplerState Sampler : register(s0);
+SamplerState BumpSampler : register(s1);
 
 cbuffer MatrixConstants : register(b0)
 {
@@ -31,7 +33,7 @@ struct FMaterial
     float SpecularScalar;
     
     float3 EmissiveColor;
-    float MaterialPad0;
+    int bUseBumpMap;
 };
 cbuffer MaterialConstants : register(b3)
 {
@@ -64,6 +66,7 @@ struct PS_INPUT
     float3 worldPos : TEXCOORD0; // 월드 공간 위치
     float4 color : COLOR; // 전달된 베이스 컬러
     float3 normal : NORMAL; // 월드 공간 노멀
+    float3 tangent : TANGENT; // 월드 공간 탄젠트
     float normalFlag : TEXCOORD1; // 노멀 유효 플래그
     float2 texcoord : TEXCOORD2; // UV 좌표
     int materialIndex : MATERIAL_INDEX; // 머티리얼 인덱스
@@ -78,8 +81,87 @@ struct PS_OUTPUT
 
 PS_OUTPUT mainPS(PS_INPUT input)
 {
+    
     PS_OUTPUT output;
     output.UUID = UUID;
+
+    float3 Normal;
+    
+    // BumpMap 샘플링
+    if (Material.bUseBumpMap == 1)
+    {
+    //    Normal = BumpTexture.Sample(BumpSampler, input.texcoord).rgb;
+    //    //output.color = float4(Normal, 1);
+    //    //return output;
+    //    // 샘플링된 노멀을 [-1, 1] 범위로 변환
+    //    Normal = normalize(Normal * 2.0f - 1.0f);
+        
+    //    // N : 보간된 버텍스 노멀
+    //    float3 N = normalize(input.normal);
+    //    // T : 보간된 버텍스 탄젠트
+    //    float3 T = normalize(input.tangent);
+    //    //float3 T = normalize(normalize(input.tangent) - dot(input.tangent, N) * N);
+    //    // B : N과 T의 외적
+    //    //float3 B = normalize(cross(T, N));
+    //    float3 B = normalize(cross(N, T));
+        
+    //    // TBN 변환 행렬 생성
+    //    // 탄젠트 공간 벡터를 월드 공간으로 변환하기 위해
+    //    float3x3 TBN = float3x3(T, B, N);
+    //    //TBN = transpose(TBN);
+  
+        
+    //    // 샘플링된 노멀을 TBN 행렬을 이용해 월드 공간으로 변환
+    //    Normal = normalize(mul(Normal, TBN));
+    //    //Normal = normalize(mul(mul(Normal, TBN), (float3x3) Model));
+    //    //Normal.y *= -1;
+    //    //output.color = float4(Normal, 1.f);
+    //    //return output;
+        
+        
+        // 1) 범프 맵 샘플링
+        float3 sampledNormal = BumpTexture.Sample(BumpSampler, input.texcoord).rgb;
+        
+        
+        //output.color = float4(sampledNormal, 1.f);
+        //return output;
+        
+        // 2) 범위 변환 [0,1] -> [-1,1]
+        sampledNormal = normalize(sampledNormal * 2.0f - 1.0f);
+        
+        // 3) 보간된 노멀/탄젠트/비탄젠트 벡터 계산
+        float3 N = normalize(input.normal);
+        float3 T = normalize(input.tangent);
+        T = normalize(T - dot(T, N) * N);
+        float3 B = cross(N, T);
+        
+        float3x3 TBN = float3x3(T, B, N);
+        Normal = normalize(mul(sampledNormal, TBN));
+        //float3 normalColor = normalWS * 0.5f + 0.5f;
+        //output.color = float4(Normal, 1.0f);
+        //return output;
+        
+        //// 4) TBN 행렬 구성
+        //float3x3 TBN = float3x3(T, B, N);
+
+        //// 5) 월드 공간 노멀로 변환
+        //float3 worldNormal = mul(sampledNormal, TBN);
+        //worldNormal = mul(worldNormal, (float3x3) Model);
+        //worldNormal = normalize(worldNormal);
+
+        //// 6) 시각화용으로 [-1,1] 범위를 [0,1]로 매핑
+        //float3 debugColor = (worldNormal * 0.5f) + 0.5f;
+
+        //// 7) 픽셀 출력
+        //output.color = outputColor = float4(debugColor, 1.0f);
+
+        
+        //return output;
+    }
+    else // bUseBumpMap == 0
+    {
+        Normal = normalize(input.normal);
+    }
 
     // 1) 알베도 샘플링
     float3 albedo = Textures.Sample(Sampler, input.texcoord).rgb;
@@ -93,7 +175,8 @@ PS_OUTPUT mainPS(PS_INPUT input)
 
     if (IsLit)
     {
-        float3 lightRgb = Lighting(input.worldPos, input.normal).rgb;
+        //dssdfsaffloat3 lightRgb = Lighting(input.worldPos, Normal).rgb;
+        float3 lightRgb = Lighting(input.worldPos, Normal).rgb;
         float3 litColor = baseColor * lightRgb;
         output.color = float4(litColor, 1);
     }
@@ -105,7 +188,8 @@ PS_OUTPUT mainPS(PS_INPUT input)
     if (isSelected)
     {
         output.color += float4(0.02, 0.02, 0.02, 1);
-
     }
+    
+    output.color = float4(Normal * 0.5 + 0.5, 1.f);
     return output;
 }

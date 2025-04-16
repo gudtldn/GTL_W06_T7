@@ -31,6 +31,7 @@ struct PS_INPUT
     float3 worldPos : TEXCOORD0; // 월드 공간 위치 (조명용)
     float4 color : COLOR; // 버텍스 컬러 또는 머티리얼 베이스 컬러
     float3 normal : NORMAL; // 월드 공간 노멀
+    float3 tangent : TANGENT; // 월드 공간 탄젠트
     float normalFlag : TEXCOORD1; // 노멀 유효 플래그 (1.0 또는 0.0)
     float2 texcoord : TEXCOORD2; // UV 좌표
     int materialIndex : MATERIAL_INDEX; // 머티리얼 인덱스
@@ -53,6 +54,9 @@ PS_INPUT mainVS(VS_INPUT input)
     output.color = input.color;
   
     output.normal = normalize(mul(input.normal, (float3x3) MInverseTranspose));
+    //output.normal = normalize(input.normal);
+    output.tangent = normalize(mul(input.tangent, (float3x3) Model));
+    //output.tangent = input.tangent;
     
     output.texcoord = input.texcoord;
     
