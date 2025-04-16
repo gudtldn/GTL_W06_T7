@@ -16,11 +16,19 @@ struct FVector4
         : X(InVector.X), Y(InVector.Y), Z(InVector.Z)
         , W(InW)
     {}
+    FVector4(const FString& SourceString)
+        : X(0), Y(0), Z(0), W(0)
+    {
+        InitFromString(SourceString);
+    }
 
     FVector4 operator+(const FVector4& Other) const;
     FVector4 operator-(const FVector4& Other) const;
 
     FVector4 operator/(float Scalar) const;
+
+    FString ToString() const;
+    bool InitFromString(const FString& InSourceString);
 };
 
 inline FVector4 FVector4::operator-(const FVector4& Other) const
@@ -52,6 +60,8 @@ inline FVector4 FVector4::operator/(float Scalar) const
         W / Scalar
     };
 }
+
+
 
 inline FArchive& operator<<(FArchive& Ar, FVector4& V)
 {

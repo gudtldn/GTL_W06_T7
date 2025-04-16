@@ -32,6 +32,13 @@ public:
         static TMap<FName, UClass*> ClassMap;
         return ClassMap;
     }
+    static UClass* FindClass(const FName& ClassName)
+    {
+        auto It = GetClassMap().Find(ClassName);
+        if (It)
+            return *It;
+        return nullptr;
+    }
 
     uint32 GetClassSize() const { return ClassSize; }
     uint32 GetClassAlignment() const { return ClassAlignment; }

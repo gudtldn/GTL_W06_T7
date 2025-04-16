@@ -14,6 +14,7 @@ public:
     ULevel() = default;
 
     void InitLevel(UWorld* InOwningWorld);
+    void Release();
 
     virtual UObject* Duplicate(UObject* InOuter) override;
 

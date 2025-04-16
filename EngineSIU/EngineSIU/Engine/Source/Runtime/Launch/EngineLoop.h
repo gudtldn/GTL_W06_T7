@@ -1,9 +1,12 @@
 #pragma once
 #include "Core/HAL/PlatformType.h"
+#include "Engine/ResourceMgr.h"
+#include "LevelEditor/SlateAppMessageHandler.h"
 #include "Renderer/Renderer.h"
 #include "UnrealEd/PrimitiveDrawBatch.h"
-#include "Engine/ResourceMgr.h"
 
+
+class FSlateAppMessageHandler;
 class UnrealEd;
 class UImGuiManager;
 class UWorld;
@@ -26,10 +29,10 @@ public:
     void Tick();
     void Exit();
     float GetAspectRatio(IDXGISwapChain* swapChain) const;
-    void Input();
 
 private:
     void WindowInit(HINSTANCE hInstance);
+    static LRESULT CALLBACK AppWndProc(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
 
 public:
     static FGraphicsDevice GraphicDevice;
@@ -40,21 +43,26 @@ public:
     static uint32 TotalAllocationCount;
 
 
-    HWND hWnd;
+    HWND AppWnd;
+
+    // 셰이더 핫 리로드 관련 Flag
+    bool bIsEnableShaderHotReload = true;
 
 private:
     UImGuiManager* UIMgr;
     //TODO: GWorld 제거, Editor들 EditorEngine으로 넣기
-    
+
+    std::unique_ptr<FSlateAppMessageHandler> AppMessageHandler;
     SLevelEditor* LevelEditor;
     UnrealEd* UnrealEditor;
     FDXDBufferManager* bufferManager; //ToDo UEngine으로 옮겨야함.
 
     bool bIsExit = false;
     const int32 targetFPS = 60;
-    bool bTestInput = false;
 
 public:
     SLevelEditor* GetLevelEditor() const { return LevelEditor; }
     UnrealEd* GetUnrealEditor() const { return UnrealEditor; }
+
+    FSlateAppMessageHandler* GetAppMessageHandler() const { return AppMessageHandler.get(); }
 };

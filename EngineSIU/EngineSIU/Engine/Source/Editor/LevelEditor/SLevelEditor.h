@@ -15,11 +15,11 @@ public:
     SLevelEditor();
 
     void Initialize();
-    void Tick(double deltaTime);
-    void Input();
+    void Tick(float DeltaTime);
     void Release();
-    
-    void SelectViewport(POINT point);
+
+    void SelectViewport(FVector2D InPoint);
+
     void ResizeLevelEditor();
     void ResizeViewports();
     void SetEnableMultiViewport(bool bIsEnable);
@@ -28,16 +28,17 @@ public:
 private:
     SSplitterH* HSplitter;
     SSplitterV* VSplitter;
-    UWorld* World;
     std::shared_ptr<FEditorViewportClient> ViewportClients[4];
     std::shared_ptr<FEditorViewportClient> ActiveViewportClient;
 
-    bool bLButtonDown = false;
-    bool bRButtonDown = false;
-    
+    /** 우클릭 시 캡처된 마우스 커서의 초기 위치 (스크린 좌표계) */
+    FVector2D MousePinPosition;
+
+    /** 우클릭이 눌려있는지 여부 */
+    bool bIsPressedMouseRightButton = false;
+
     bool bMultiViewportMode;
 
-    POINT lastMousePos;
     float EditorWidth;
     float EditorHeight;
 

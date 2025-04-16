@@ -60,6 +60,8 @@ public:
     void CreateConstantBuffers();
     void ReleaseConstantBuffer();
 
+    bool HandleHotReloadShader();
+
 public:
     FGraphicsDevice* Graphics;
     FDXDBufferManager* BufferManager;

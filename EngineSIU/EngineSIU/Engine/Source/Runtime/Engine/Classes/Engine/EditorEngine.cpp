@@ -117,8 +117,8 @@ void UEditorEngine::EndPIE()
         PIEWorld = nullptr;
 
         // TODO: PIE에서 EditorWorld로 돌아올 때, 기존 선택된 Picking이 유지되어야 함. 현재는 에러를 막기위해 임시조치.
-        DeselectActor(GetSelectedActor());
-        DeselectComponent(GetSelectedComponent());
+        SelectActor(nullptr);
+        SelectComponent(nullptr);
     }
     // 다시 EditorWorld로 돌아옴.
     ActiveWorld = EditorWorld;
@@ -148,23 +148,19 @@ FWorldContext* UEditorEngine::GetPIEWorldContext(/*int32 WorldPIEInstance*/)
     return nullptr;
 }
 
-void UEditorEngine::SelectActor(AActor* InActor)
+void UEditorEngine::SelectActor(AActor* InActor) const
 {
     if (InActor && CanSelectActor(InActor))
     {
         PrivateEditorSelection::GActorSelected = InActor;
     }
-}
-
-void UEditorEngine::DeselectActor(AActor* InActor)
-{
-    if (InActor)
+    else if (InActor == nullptr)
     {
         PrivateEditorSelection::GActorSelected = nullptr;
     }
 }
 
-bool UEditorEngine::CanSelectActor(AActor* InActor) const
+bool UEditorEngine::CanSelectActor(const AActor* InActor) const
 {
     return InActor != nullptr && InActor->GetWorld() == ActiveWorld && !InActor->IsActorBeingDestroyed();
 }
@@ -182,23 +178,30 @@ void UEditorEngine::HoverActor(AActor* InActor)
     }
 }
 
-void UEditorEngine::SelectComponent(USceneComponent* InComponent)
+void UEditorEngine::NewWorld()
+{
+    SelectActor(nullptr);
+    SelectComponent(nullptr);
+
+    if (ActiveWorld->GetActiveLevel())
+    {
+        ActiveWorld->GetActiveLevel()->Release();
+    }
+}
+
+void UEditorEngine::SelectComponent(USceneComponent* InComponent) const
 {
     if (InComponent && CanSelectComponent(InComponent))
     {
         PrivateEditorSelection::GComponentSelected = InComponent;
     }
-}
-
-void UEditorEngine::DeselectComponent(USceneComponent* InComponent)
-{
-    if (InComponent)
+    else if (InComponent == nullptr)
     {
         PrivateEditorSelection::GComponentSelected = nullptr;
     }
 }
 
-bool UEditorEngine::CanSelectComponent(USceneComponent* InComponent) const
+bool UEditorEngine::CanSelectComponent(const USceneComponent* InComponent) const
 {
     return InComponent != nullptr && InComponent->GetOwner() && InComponent->GetOwner()->GetWorld() == ActiveWorld && !InComponent->GetOwner()->IsActorBeingDestroyed();
 }
@@ -216,7 +219,7 @@ void UEditorEngine::HoverComponent(USceneComponent* InComponent)
     }
 }
 
-AEditorPlayer* UEditorEngine::GetEditorPlayer()
+AEditorPlayer* UEditorEngine::GetEditorPlayer() const
 {
     return EditorPlayer;
 }

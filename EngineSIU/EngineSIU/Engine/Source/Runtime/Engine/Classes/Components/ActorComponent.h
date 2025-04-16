@@ -17,6 +17,16 @@ public:
 
     virtual UObject* Duplicate(UObject* InOuter) override;
 
+    /**
+* 이 컴포넌트의 직렬화 가능한 속성들을 문자열 맵으로 반환합니다.
+* 하위 클래스는 이 함수를 재정의하여 자신만의 속성을 추가해야 합니다.
+*/
+    virtual void GetProperties(TMap<FString, FString>& OutProperties) const;
+
+    /** 저장된 Properties 맵에서 컴포넌트의 상태를 복원합니다. */
+    virtual void SetProperties(const TMap<FString, FString>& Properties);
+
+
     /** AActor가 World에 Spawn되어 BeginPlay이전에 호출됩니다. */
     virtual void InitializeComponent();
 

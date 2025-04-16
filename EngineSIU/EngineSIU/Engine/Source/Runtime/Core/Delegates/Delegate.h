@@ -52,12 +52,22 @@ public:
 	}
 };
 
+template <>
+struct std::hash<FDelegateHandle>
+{
+    size_t operator()(const FDelegateHandle& InHandle) const noexcept
+    {
+        return std::hash<uint64>()(InHandle.HandleId);
+    }
+};
+
 template <typename Signature>
 class TDelegate;
 
 template <typename ReturnType, typename... ParamTypes>
 class TDelegate<ReturnType(ParamTypes...)>
 {
+    // TODO: std::function 사용 안하고 직접 TFunction 구현하기
 	using FuncType = std::function<ReturnType(ParamTypes...)>;
 	FuncType Func;
 
@@ -97,39 +107,27 @@ public:
 	}
 };
 
-template <>
-struct std::hash<FDelegateHandle>
-{
-	size_t operator()(const FDelegateHandle& InHandle) const noexcept
-	{
-		return std::hash<uint64>()(InHandle.HandleId);
-	}
-};
-
 template <typename Signature>
 class TMulticastDelegate;
 
 template <typename ReturnType, typename... ParamTypes>
 class TMulticastDelegate<ReturnType(ParamTypes...)>
 {
+    // TODO: std::function 사용 안하고 직접 TFunction 구현하기
 	using FuncType = std::function<ReturnType(ParamTypes...)>;
 	TMap<FDelegateHandle, FuncType> DelegateHandles;
 
 public:
-	template <typename FunctorType, typename... Args>
-	FDelegateHandle AddLambda(FunctorType&& InFunctor, Args&&... InArgs)
+	template <typename FunctorType>
+	FDelegateHandle AddLambda(FunctorType&& InFunctor)
 	{
 		FDelegateHandle DelegateHandle = FDelegateHandle::CreateHandle();
-        auto BoundFunc = std::bind(
-            std::forward<FunctorType>(InFunctor),
-            std::forward<Args>(InArgs)...
-        );
 
         DelegateHandles.Add(
             DelegateHandle,
-            [BoundFunc](ParamTypes... Params) mutable
+            [Func = std::forward<FunctorType>(InFunctor)](ParamTypes... Params) mutable
             {
-                BoundFunc(std::forward<ParamTypes>(Params)...);
+                Func(std::forward<ParamTypes>(Params)...);
             }
         );
 		return DelegateHandle;
@@ -150,7 +148,7 @@ public:
 		auto CopyDelegates = DelegateHandles;
 		for (const auto& [Handle, Delegate] : CopyDelegates)
 		{
-			Delegate(std::forward<Params>(Params)...);
+			Delegate(std::forward<ParamTypes>(Params)...);  // NOLINT(bugprone-use-after-move)
 		}
 	}
 };

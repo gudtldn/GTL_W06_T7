@@ -22,6 +22,36 @@ UObject* USceneComponent::Duplicate(UObject* InOuter)
     return NewComponent;
 }
 
+void USceneComponent::GetProperties(TMap<FString, FString>& OutProperties) const
+{
+    Super::GetProperties(OutProperties);
+    OutProperties.Add(TEXT("RelativeLocation"), *RelativeLocation.ToString());
+    OutProperties.Add(TEXT("RelativeRotation"), *RelativeRotation.ToString());
+    OutProperties.Add(TEXT("RelativeScale3D"), *RelativeScale3D.ToString());
+    
+}
+
+void USceneComponent::SetProperties(const TMap<FString, FString>& InProperties)
+{
+    Super::SetProperties(InProperties);
+    const FString* TempStr = nullptr;
+    TempStr = InProperties.Find(TEXT("RelativeLocation"));
+    if (TempStr)
+    {
+        RelativeLocation.InitFromString(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("RelativeRotation"));
+    if (TempStr)
+    {
+        RelativeRotation.InitFromString(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("RelativeScale3D"));
+    if (TempStr)
+    {
+        RelativeScale3D.InitFromString(*TempStr);
+    }
+}
+
 void USceneComponent::InitializeComponent()
 {
     Super::InitializeComponent();
@@ -36,8 +66,19 @@ void USceneComponent::TickComponent(float DeltaTime)
 
 int USceneComponent::CheckRayIntersection(FVector& InRayOrigin, FVector& InRayDirection, float& pfNearHitDistance)
 {
+    // TODO: 나중에 지워도 될듯
     int nIntersections = 0;
     return nIntersections;
+}
+
+void USceneComponent::DestroyComponent()
+{
+    if (AttachParent)
+    {
+        AttachParent->AttachChildren.Remove(this);
+        AttachParent = nullptr;
+    }
+    Super::DestroyComponent();
 }
 
 FVector USceneComponent::GetForwardVector()

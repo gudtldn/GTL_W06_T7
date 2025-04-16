@@ -49,6 +49,9 @@ public:
     ConstIterator begin() const noexcept { return ConstIterator(ContainerPrivate.begin()); }
     ConstIterator end() const noexcept { return ConstIterator(ContainerPrivate.end()); }
 
+    MapType& GetContainerPrivate() { return ContainerPrivate; }
+    const MapType& GetContainerPrivate() const { return ContainerPrivate; }
+
     // 생성자 및 소멸자
     TMap() = default;
     ~TMap() = default;

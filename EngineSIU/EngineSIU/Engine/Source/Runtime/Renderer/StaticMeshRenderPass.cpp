@@ -65,8 +65,11 @@ void FStaticMeshRenderPass::CreateShader()
     ShaderManager->RegisterShaderVariants();
     
     HRESULT hr = ShaderManager->AddVertexShaderAndInputLayout(L"StaticMeshVertexShader", L"Shaders/StaticMeshVertexShader.hlsl", "mainVS", StaticMeshLayoutDesc, ARRAYSIZE(StaticMeshLayoutDesc));
-    
-    VertexShader = ShaderManager->GetVertexShaderByKey(L"StaticMeshVertexShader");
+
+    //VertexShader = ShaderManager->GetVertexShaderByKey(L"StaticMeshVertexShader");
+
+    ReloadShader();
+
     InputLayout = ShaderManager->GetInputLayoutByKey(L"StaticMeshVertexShader");
     // PixelShader = ShaderManager->GetPixelShaderByKey(L"BlinnPhong");  // Default Pixel Shader
 }
@@ -271,4 +274,9 @@ void FStaticMeshRenderPass::UpdateShadersByViewMode(EViewModeIndex evi)
 
     VertexShader = Pipeline.VertexShader;
     PixelShader = Pipeline.PixelShader;
+
+void FStaticMeshRenderPass::ReloadShader()
+{
+    VertexShader = ShaderManager->GetVertexShaderByKey(L"StaticMeshVertexShader");
+    PixelShader = ShaderManager->GetPixelShaderByKey(L"StaticMeshPixelShader");
 }

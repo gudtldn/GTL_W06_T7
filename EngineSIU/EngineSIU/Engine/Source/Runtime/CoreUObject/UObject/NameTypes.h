@@ -5,6 +5,9 @@ class FString;
 
 enum ENameNone : uint8 { NAME_None = 0 };
 
+/** Maximum size of name, including the null terminator. */
+enum : uint16 { NAME_SIZE = 256 };
+
 class FName
 {
     friend struct FNameHelper;

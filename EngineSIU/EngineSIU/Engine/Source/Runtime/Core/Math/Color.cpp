@@ -1,5 +1,7 @@
 #include "Color.h"
 
+#include "Misc/Parse.h"
+
 const FLinearColor FLinearColor::White(1.f, 1.f, 1.f);
 const FLinearColor FLinearColor::Gray(0.5f, 0.5f, 0.5f);
 const FLinearColor FLinearColor::Black(0, 0, 0);
@@ -26,5 +28,15 @@ const FColor FColor::Emerald(46, 204, 113);
 
 FString FLinearColor::ToString() const
 {
-    return FString::Printf(TEXT("R: %f, G: %f, B: %f, A: %f"), R, G, B, A);
+    return FString::Printf(TEXT("R=%3.3f G=%3.3f B=%3.3f A=%3.3f"), R, G, B, A);
+}
+
+bool FLinearColor::InitFromString(const FString& InSourceString)
+{
+    // The initialization is only successful if the X, Y, and Z values can all be parsed from the string
+    const bool bSuccessful = FParse::Value(*InSourceString, TEXT("R=") , R) && FParse::Value(*InSourceString, TEXT("G="), G) &&
+        FParse::Value(*InSourceString, TEXT("B="), B) && FParse::Value(*InSourceString, TEXT("A="), A);
+
+    return bSuccessful;
+
 }

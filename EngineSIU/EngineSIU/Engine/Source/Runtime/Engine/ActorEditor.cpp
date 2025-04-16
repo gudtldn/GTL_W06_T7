@@ -25,13 +25,22 @@ FString AActor::GetActorLabel() const
     return ActorLabel; 
 }
 
-void AActor::SetActorLabel(const FString& NewActorLabel)
+void AActor::SetActorLabel(const FString& NewActorLabel, bool bUUID)
 {
     // NewActorLabel != GetActorLabel
     if (FCString::Strcmp(*NewActorLabel, *GetActorLabel()) != 0)
     {
-        ActorLabel = NewActorLabel + "_" + FString::FromInt(GetUUID());
+        if (bUUID == true)
+        {
+            
+            ActorLabel = NewActorLabel + "_" + FString::FromInt(GetUUID());
+        }
+        else
+        {
+            ActorLabel = NewActorLabel;
+        }
     }
+    
 }
 
 #endif

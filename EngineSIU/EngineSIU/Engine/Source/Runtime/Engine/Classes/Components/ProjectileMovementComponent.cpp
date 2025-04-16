@@ -63,3 +63,53 @@ void UProjectileMovementComponent::TickComponent(float DeltaTime)
         }
     }
 }
+
+void UProjectileMovementComponent::GetProperties(TMap<FString, FString>& OutProperties) const
+{
+    Super::GetProperties(OutProperties);
+    OutProperties.Add(TEXT("ProjectileLifetime"), FString::Printf(TEXT("%f"), ProjectileLifetime));
+    OutProperties.Add(TEXT("AccumulatedTime"), FString::Printf(TEXT("%f"), AccumulatedTime));
+    OutProperties.Add(TEXT("InitialSpeed"), FString::Printf(TEXT("%f"), InitialSpeed));
+    OutProperties.Add(TEXT("MaxSpeed"), FString::Printf(TEXT("%f"), MaxSpeed));
+    OutProperties.Add(TEXT("Gravity"), FString::Printf(TEXT("%f"), Gravity));
+    OutProperties.Add(TEXT("Velocity"), Velocity.ToString());
+    
+    
+}
+
+void UProjectileMovementComponent::SetProperties(const TMap<FString, FString>& InProperties)
+{
+    Super::SetProperties(InProperties);
+    const FString* TempStr = nullptr;
+    TempStr = InProperties.Find(TEXT("ProjectileLifetime"));
+    if (TempStr)
+    {
+        ProjectileLifetime = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("AccumulatedTime"));
+    if (TempStr)
+    {
+        AccumulatedTime = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("InitialSpeed"));
+    if (TempStr)
+    {
+        InitialSpeed = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("MaxSpeed"));
+    if (TempStr)
+    {
+        MaxSpeed = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("Gravity"));
+    if (TempStr)
+    {
+        Gravity = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("Velocity"));
+    if (TempStr)
+    {
+        Velocity.InitFromString(*TempStr);
+    }
+    
+}

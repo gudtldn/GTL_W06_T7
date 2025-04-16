@@ -20,13 +20,13 @@ public:
     virtual ~FBillboardRenderPass();
 
     virtual void Initialize(FDXDBufferManager* InBufferManager, FGraphicsDevice* InGraphics, FDXDShaderManager* InShaderManage) override;
-
     virtual void PrepareRender() override;
-    void UpdatePerObjectConstant(const FMatrix& Model, const FMatrix& View, const FMatrix& Projection, const FVector4& UUIDColor, bool Selected) const;
-
     virtual void Render(const std::shared_ptr<FEditorViewportClient>& Viewport) override;
-    
     virtual void ClearRenderArr() override;
+
+    void ReloadShader();
+
+    void UpdatePerObjectConstant(const FMatrix& Model, const FMatrix& View, const FMatrix& Projection, const FVector4& UUIDColor, bool Selected) const;
 
     void SetupVertexBuffer(ID3D11Buffer* pVertexBuffer, UINT numVertices) const;
     // Texture 셰이더 관련

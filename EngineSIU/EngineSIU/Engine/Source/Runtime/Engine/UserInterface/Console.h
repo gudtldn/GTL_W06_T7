@@ -1,7 +1,11 @@
 #pragma once
-#include "Define.h"
+#include "Container/Array.h"
+#include "D3D11RHI/GraphicDevice.h"
+#include "HAL/PlatformType.h"
 #include "ImGUI/imgui.h"
 #include "PropertyEditor/IWindowToggleable.h"
+
+#define UE_LOG Console::GetInstance().AddLog
 
 
 enum class LogLevel : uint8

@@ -22,10 +22,78 @@ UObject* UParticleSubUVComponent::Duplicate(UObject* InOuter)
         NewComponent->indexU = indexU;
         NewComponent->indexV = indexV;
         NewComponent->elapsedTime = elapsedTime;
+        NewComponent->FrameDuration = FrameDuration;
         NewComponent->UVScale = UVScale;
         NewComponent->UVOffset = UVOffset;
     }
     return NewComponent;
+}
+
+void UParticleSubUVComponent::GetProperties(TMap<FString, FString>& OutProperties) const
+{
+    Super::GetProperties(OutProperties);
+    OutProperties.Add(TEXT("bIsLoop"), bIsLoop ? TEXT("true") : TEXT("false"));
+    OutProperties.Add(TEXT("CellsPerRow"), FString::Printf(TEXT("%d"), CellsPerRow));
+    OutProperties.Add(TEXT("CellsPerColumn"), FString::Printf(TEXT("%d"), CellsPerColumn));
+    OutProperties.Add(TEXT("IndexU"), FString::Printf(TEXT("%d"), indexU));
+    OutProperties.Add(TEXT("IndexV"), FString::Printf(TEXT("%d"), indexV));
+    OutProperties.Add(TEXT("ElapsedTime"), FString::Printf(TEXT("%f"), elapsedTime));
+    OutProperties.Add(TEXT("FrameDuration"), FString::Printf(TEXT("%f"), FrameDuration));
+    OutProperties.Add(TEXT("UVScale"), FString::Printf(TEXT("%s"), *UVScale.ToString()));
+    OutProperties.Add(TEXT("UVOffset"), FString::Printf(TEXT("%s"), *UVOffset.ToString()));
+    
+}
+
+void UParticleSubUVComponent::SetProperties(const TMap<FString, FString>& InProperties)
+{
+    Super::SetProperties(InProperties);
+    const FString* TempStr = nullptr;
+    TempStr = InProperties.Find(TEXT("bIsLoop"));
+    if (TempStr)
+    {
+        bIsLoop = (*TempStr == TEXT("true"));
+    }
+    TempStr = InProperties.Find(TEXT("CellsPerRow"));
+    if (TempStr)
+    {
+        CellsPerRow = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("CellsPerColumn"));
+    if (TempStr)
+    {
+        CellsPerColumn = FString::ToFloat(**TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("IndexU"));
+    if (TempStr)
+    {
+        indexU = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("IndexV"));
+    if (TempStr)
+    {
+        indexV = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("ElapsedTime"));
+    if (TempStr)
+    {
+        elapsedTime = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("FrameDuration"));
+    if (TempStr)
+    {
+        FrameDuration = FString::ToFloat(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("UVScale"));
+    
+    if (TempStr)
+    {
+        UVScale.InitFromString(*TempStr);
+    }
+    TempStr = InProperties.Find(TEXT("UVOffset"));
+    if (TempStr)
+    {
+        UVOffset.InitFromString(*TempStr);
+    }
 }
 
 // InitializeComponent: 초기화 시 버텍스 버퍼 생성
@@ -88,6 +156,5 @@ void UParticleSubUVComponent::SetTexture(const FWString& _fileName)
 {
     Texture = FEngineLoop::ResourceManager.GetTexture(_fileName);
     std::string str(_fileName.begin(), _fileName.end());
-    BufferKey = FString(str);
 
 }

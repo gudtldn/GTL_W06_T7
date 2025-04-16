@@ -3,6 +3,7 @@
 #include "Vector.h"
 #include "Quat.h"
 #include "Matrix.h"
+#include "Misc/Parse.h"
 
 FRotator::FRotator(const FVector& InVector)
     : Pitch(FMath::RadiansToDegrees(InVector.Y)), Yaw(FMath::RadiansToDegrees(InVector.Z)), Roll(FMath::RadiansToDegrees(InVector.X))
@@ -186,6 +187,24 @@ void FRotator::Normalize()
     Pitch = FMath::UnwindDegrees(Pitch);
     Yaw = FMath::UnwindDegrees(Yaw);
     Roll = FMath::UnwindDegrees(Roll);
+}
+
+FString FRotator::ToString() const
+{
+    return FString::Printf(TEXT("Pitch=%3.3f Yaw=%3.3f Roll=%3.3f"), Pitch, Yaw, Roll);
+}
+
+bool FRotator::InitFromString(const FString& InSourceString)
+{
+    Pitch = 0.0f;
+    Yaw = 0.0f;
+    Roll = 0.0f;
+
+    const bool bSuccess = FParse::Value(*InSourceString, TEXT("Pitch="), Pitch) &&
+        FParse::Value(*InSourceString, TEXT("Yaw="), Yaw) &&
+        FParse::Value(*InSourceString, TEXT("Roll="), Roll);
+
+    return bSuccess;
 }
 
 

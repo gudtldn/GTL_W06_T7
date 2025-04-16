@@ -1,12 +1,13 @@
 name: cpp-linter
 
 on:
-  pull_request:
-    branches: [main, master, develop]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
-  push:
-    branches: [main, master, develop]
-    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
+#  pull_request:
+#    branches: [main, master, develop]
+#    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
+#  push:
+#    branches: [main, master, develop]
+#    paths: ['**.c', '**.cpp', '**.h', '**.hpp', '**.vcxproj']
+  workflow_dispatch:
 
 jobs:
   cpp-linter:
@@ -40,7 +41,7 @@ jobs:
           files-changed-only: true
           lines-changed-only: 'diff'
           thread-comments: ${{ github.event_name == 'pull_request' && 'update' }}
-          step-summary: true
+          step-summary: false
 
       - name: Fail fast?!
         if: steps.linter.outputs.checks-failed != 0

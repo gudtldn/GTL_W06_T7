@@ -9,6 +9,23 @@ void ULevel::InitLevel(UWorld* InOwningWorld)
 
 }
 
+void ULevel::Release()
+{
+    
+    
+    for (AActor* Actor : Actors)
+    {
+        Actor->EndPlay(EEndPlayReason::WorldTransition);
+        TSet<UActorComponent*> Components = Actor->GetComponents();
+        for (UActorComponent* Component : Components)
+        {
+            GUObjectArray.MarkRemoveObject(Component);
+        }
+        GUObjectArray.MarkRemoveObject(Actor);
+    }
+    Actors.Empty();
+}
+
 UObject* ULevel::Duplicate(UObject* InOuter)
 {
     ThisClass* NewLevel = Cast<ThisClass>(Super::Duplicate(InOuter));

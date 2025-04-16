@@ -72,9 +72,7 @@ void FFogRenderPass::CreateShader()
     );
 
     // 생성된 셰이더와 입력 레이아웃 획득
-    FogVertexShader = ShaderManager->GetVertexShaderByKey(L"FogVertexShader");
-    FogPixelShader = ShaderManager->GetPixelShaderByKey(L"FogPixelShader");
-    FogQuadPixelShader = ShaderManager->GetPixelShaderByKey(L"FogQuadPixelShader");
+    ReloadShader();
     InputLayout = ShaderManager->GetInputLayoutByKey(L"FogVertexShader");
 
     CreateSceneSrv();
@@ -340,4 +338,11 @@ void FFogRenderPass::FinalRender()
 void FFogRenderPass::CreateRTV()
 {
     Graphics->CreateRTV(FogBuffer, FogRTV);
+}
+
+void FFogRenderPass::ReloadShader()
+{
+    FogVertexShader = ShaderManager->GetVertexShaderByKey(L"FogVertexShader");
+    FogPixelShader = ShaderManager->GetPixelShaderByKey(L"FogPixelShader");
+    FogQuadPixelShader = ShaderManager->GetPixelShaderByKey(L"FogQuadPixelShader");
 }

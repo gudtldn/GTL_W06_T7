@@ -13,6 +13,9 @@ struct FVector2D
 	FVector2D(float InX, float InY) : X(InX), Y(InY) {}
     FVector2D(float Scalar) : X(Scalar), Y(Scalar) {}
 
+    static const FVector2D ZeroVector;
+    static const FVector2D OneVector;
+
 public:
     FVector2D operator+(const FVector2D& Rhs) const
     {
@@ -52,6 +55,25 @@ public:
         Y += Rhs.Y;
         return *this;
     }
+
+    bool operator==(const FVector2D& Vector2D) const = default;
+    bool operator!=(const FVector2D& Vector2D) const = default;
+
+    /**
+    * Get a textual representation of the vector.
+    *
+    * @return Text describing the vector.
+    */
+    FString ToString() const;
+
+    /**
+    * Initialize this Vector based on an FString. The String is expected to contain X=, Y=.
+    * The TVector2<T> will be bogus when InitFromString returns false.
+    *
+    * @param	InSourceString	FString containing the vector values.
+    * @return true if the X,Y values were read successfully; false otherwise.
+    */
+    bool InitFromString(const FString& InSourceString);
 };
 
 // 3D 벡터
@@ -157,6 +179,10 @@ public:
 
     bool IsNearlyZero(float Tolerance = SMALL_NUMBER) const;
     bool IsZero() const;
+
+    
+    FString ToString() const;
+    bool InitFromString(const FString& InSourceString);
 };
 
 inline FVector::FVector(const FRotator& InRotator)
@@ -374,6 +400,8 @@ inline bool FVector::IsZero() const
     return X==0.f && Y==0.f && Z==0.f;
 }
 
+
+
 inline FArchive& operator<<(FArchive& Ar, FVector2D& V)
 {
     return Ar << V.X << V.Y;
@@ -383,3 +411,5 @@ inline FArchive& operator<<(FArchive& Ar, FVector& V)
 {
     return Ar << V.X << V.Y << V.Z;
 }
+
+
