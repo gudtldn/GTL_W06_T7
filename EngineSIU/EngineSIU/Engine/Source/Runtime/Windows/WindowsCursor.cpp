@@ -1,6 +1,7 @@
 ﻿#include "WindowsCursor.h"
 
 #include "Define.h"
+#include "UObject/Object.h"
 
 bool FWindowsCursor::bShowCursor = true;
 
@@ -19,6 +20,25 @@ FVector2D FWindowsCursor::GetPosition()
 void FWindowsCursor::SetPosition(const int32 X, const int32 Y)
 {
     ::SetCursorPos(X, Y);
+}
+
+FVector2D FWindowsCursor::GetClientPosition()
+{
+    POINT CursorPos;
+    ::GetCursorPos(&CursorPos);
+    ::ScreenToClient(GEngineLoop.AppWnd, &CursorPos);
+
+    return {
+        static_cast<float>(CursorPos.x),
+        static_cast<float>(CursorPos.y)
+    };
+}
+
+void FWindowsCursor::SetClientPosition(const int32 X, const int32 Y)
+{
+    POINT CursorPos = { X, Y };
+    ::ClientToScreen(GEngineLoop.AppWnd, &CursorPos);
+    ::SetCursorPos(CursorPos.x, CursorPos.y);
 }
 
 ECursorType FWindowsCursor::GetMouseCursor()

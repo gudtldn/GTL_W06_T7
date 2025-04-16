@@ -1,5 +1,6 @@
 #pragma once
 #include "LightActor.h"
+#include "Components/Light/SpotLightComponent.h"
 
 class ASpotLight : public ALight
 {

@@ -1,5 +1,7 @@
 #pragma once
 #include "LightActor.h"
+#include "Components/Light/PointLightComponent.h"
+
 class APointLight : public ALight
 {
     DECLARE_CLASS(APointLight, ALight)

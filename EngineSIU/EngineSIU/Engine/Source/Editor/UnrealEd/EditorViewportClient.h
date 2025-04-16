@@ -96,6 +96,14 @@ public:
 
     bool IsSelected(const FVector2D& InPoint) const;
 
+    /**
+     * ScreenPos를 World Space로 Deprojection 합니다.
+     * @param ScreenPos Deproject할 스크린 좌표
+     * @param OutWorldOrigin Origin Vector (World Space)
+     * @param OutWorldDir Direction Vector (World Space)
+     */
+    void DeprojectFVector2D(const FVector2D& ScreenPos, FVector& OutWorldOrigin, FVector& OutWorldDir) const;
+
 protected:
     /** Camera speed setting */
     int32 CameraSpeedSetting = 1;
@@ -150,8 +158,7 @@ public: //Camera Movement
     void SetViewportType(ELevelViewportType InViewportType);
     void UpdateOrthoCameraLoc();
     EViewModeIndex GetViewMode() const { return ViewMode; }
-    void SetViewMode(EViewModeIndex newMode)
-    { ViewMode = newMode; }
+    void SetViewMode(EViewModeIndex newMode) { ViewMode = newMode; }
     uint64 GetShowFlag() const { return ShowFlag; }
     void SetShowFlag(uint64 newMode) { ShowFlag = newMode; }
     bool GetIsOnRBMouseClick() const { return bRightMouseDown; }
