@@ -28,9 +28,10 @@ struct LIGHT
     float m_fAttRadius; // 감쇠 반경 (Attenuation Radius)
     float3 LightPad;
     
-    //float m_fInnerConeAngle; // 내부 원뿔 각도
-    //float m_fOuterConeAngle; // 외부 원뿔 각도
-    //float2 Pad1;
+    //inner cone, outer cone 하드코딩으로 입력할 때 아래 세개는 주석처리
+    float m_fInnerConeAngle; // 내부 원뿔 각도
+    float m_fOuterConeAngle; // 외부 원뿔 각도
+    float2 Pad1;
 };
 
 cbuffer cbLights : register(b2)
@@ -43,6 +44,7 @@ cbuffer cbLights : register(b2)
 
 float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal)
 {
+    
     float3 vToLightSource = gLights[nIndex].m_vPosition - vPosition;
     float fDistanceToLight = length(vToLightSource);
     float3 vDirectionToLightSource = vToLightSource / fDistanceToLight;
@@ -53,12 +55,12 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal)
     
     float DistanceAttenuation = saturate(1.0f - fDistanceToLight / (gLights[nIndex].m_fAttRadius));
     
-    //float CosInnerConeAngle = cos(radians(gLights[nIndex].m_fInnerConeAngle));
-    //float CosOuterConeAngle = cos(radians(gLights[nIndex].m_fOuterConeAngle));
-    float cosInnerConeAngle = cos(radians(15.0f/2)); // 예시: 내부 원뿔 반각 30도의 코사인
-    float cosOuterConeAngle = cos(radians(30.0f/2)); // 예시: 외부 원뿔 반각 60도의 코사인
+    float CosInnerConeAngle = cos(radians(gLights[nIndex].m_fInnerConeAngle));
+    float CosOuterConeAngle = cos(radians(gLights[nIndex].m_fOuterConeAngle));
+    //float CosInnerConeAngle = cos(radians(10.0f / 2)); // 예시: 내부 원뿔 반각 30도의 코사인
+    //float CosOuterConeAngle = cos(radians(60.0f / 2)); // 예시: 외부 원뿔 반각 60도의 코사인
     
-    float SpotLightRatioBase = (fSpotCosAngle - cosOuterConeAngle) / (cosInnerConeAngle - cosOuterConeAngle);
+    float SpotLightRatioBase = (fSpotCosAngle - CosOuterConeAngle) / (CosInnerConeAngle - CosOuterConeAngle);
     //float SpotLightRatioBase = (fSpotCosAngle - cosInnerConeAngle) / (cosInnerConeAngle - cosOuterConeAngle);
     float SaturatedSpotLightRatioBase = saturate(SpotLightRatioBase);
     
@@ -77,6 +79,7 @@ float4 SpotLight(int nIndex, float3 vPosition, float3 vNormal)
     
     float4 FinalColor = float4(FinalDiffuseColor, 1.0f);
 
+    //return float4(DistanceAttenuation, DistanceAttenuation, DistanceAttenuation, 1.0f);
     return FinalColor;
 }
     /*

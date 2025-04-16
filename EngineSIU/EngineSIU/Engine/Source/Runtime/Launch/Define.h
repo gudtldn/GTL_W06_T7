@@ -293,8 +293,13 @@ struct FLight
     int   Enabled;
     int   Type;
     float Intensity = 10.f;    // m_fIntensity: 광원 강도
+
     float AttRadius = 20.f;    // m_fAttRadius: 감쇠 반경
     FVector LightPad;
+
+    float InnerConeAngle;  // HLSL의 m_fInnerConeAngle 에 대응
+    float OuterConeAngle;  // HLSL의 m_fOuterConeAngle 에 대응
+    FVector2D Pad1;        // HLSL의 float2 Pad1 에 대응 (16바이트 정렬 확인)
 };
 
 struct FLightBuffer
