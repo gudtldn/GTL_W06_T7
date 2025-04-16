@@ -21,7 +21,7 @@
 #include "PropertyEditor/ShowFlags.h"
 
 #include "UnrealEd/EditorViewportClient.h"
-
+#include "LevelEditor/SLevelEditor.h"
 
 FStaticMeshRenderPass::FStaticMeshRenderPass()
     : VertexShader(nullptr)
@@ -62,16 +62,13 @@ void FStaticMeshRenderPass::CreateShader()
 
     Stride = sizeof(FStaticMeshVertex);
 
+    ShaderManager->RegisterShaderVariants();
+    
     HRESULT hr = ShaderManager->AddVertexShaderAndInputLayout(L"StaticMeshVertexShader", L"Shaders/StaticMeshVertexShader.hlsl", "mainVS", StaticMeshLayoutDesc, ARRAYSIZE(StaticMeshLayoutDesc));
-
-    hr = ShaderManager->AddPixelShader(L"StaticMeshPixelShader", L"Shaders/StaticMeshPixelShader.hlsl", "mainPS");
-
+    
     VertexShader = ShaderManager->GetVertexShaderByKey(L"StaticMeshVertexShader");
-
-    PixelShader = ShaderManager->GetPixelShaderByKey(L"StaticMeshPixelShader");
-
     InputLayout = ShaderManager->GetInputLayoutByKey(L"StaticMeshVertexShader");
-
+    // PixelShader = ShaderManager->GetPixelShaderByKey(L"BlinnPhong");  // Default Pixel Shader
 }
 void FStaticMeshRenderPass::ReleaseShader()
 {
@@ -82,9 +79,13 @@ void FStaticMeshRenderPass::ReleaseShader()
 
 void FStaticMeshRenderPass::ChangeViewMode(EViewModeIndex evi) const
 {
+    const_cast<FStaticMeshRenderPass*>(this)->UpdateShadersByViewMode(evi);
+
     switch (evi)
     {
-    case EViewModeIndex::VMI_Lit:
+    case EViewModeIndex::VMI_Lit_Gouraud:
+    case EViewModeIndex::VMI_Lit_Lambert:
+    case EViewModeIndex::VMI_Lit_Phong:
         UpdateLitUnlitConstant(1);
         break;
     case EViewModeIndex::VMI_Wireframe:
@@ -245,3 +246,29 @@ void FStaticMeshRenderPass::ClearRenderArr()
     StaticMeshObjs.Empty();
 }
 
+void FStaticMeshRenderPass::UpdateShadersByViewMode(EViewModeIndex evi)
+{
+    ELightingModel LightingModel;
+
+    switch (evi)
+    {
+    case EViewModeIndex::VMI_Lit_Gouraud:
+        LightingModel = ELightingModel::Gouraud;
+        break;
+    case EViewModeIndex::VMI_Lit_Lambert:
+        LightingModel = ELightingModel::Lambert;
+        break;
+    case EViewModeIndex::VMI_Lit_Phong:
+        LightingModel = ELightingModel::BlinnPhong;
+        break;
+    case EViewModeIndex::VMI_Unlit:
+    default:
+        LightingModel = ELightingModel::Unlit;
+        break;
+    }
+
+    FShaderPipeline Pipeline = ShaderManager->GetShaderPipelineByLightingModel(LightingModel);
+
+    VertexShader = Pipeline.VertexShader;
+    PixelShader = Pipeline.PixelShader;
+}

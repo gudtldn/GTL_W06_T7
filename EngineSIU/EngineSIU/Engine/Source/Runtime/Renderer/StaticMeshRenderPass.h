@@ -2,10 +2,9 @@
 #include "IRenderPass.h"
 #include "EngineBaseTypes.h"
 #include "Container/Set.h"
-
 #include "Define.h"
 
-class FDXDShaderManager;
+class DXDShaderManager;
 
 class UWorld;
 
@@ -16,6 +15,8 @@ class FEditorViewportClient;
 class UStaticMeshComponent;
 
 struct FStaticMaterial;
+
+struct FShaderPipeline;
 
 class FStaticMeshRenderPass : public IRenderPass
 {
@@ -31,6 +32,8 @@ public:
     virtual void Render(const std::shared_ptr<FEditorViewportClient>& Viewport) override;
 
     virtual void ClearRenderArr() override;
+
+    void UpdateShadersByViewMode(EViewModeIndex evi);
 
     void PrepareRenderState() const;
     

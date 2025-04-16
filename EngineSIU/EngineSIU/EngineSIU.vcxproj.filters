@@ -821,11 +821,19 @@
     <FxCompile Include="Shaders\Light.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\FogPixelShader.hlsl" />
-    <FxCompile Include="Shaders\FogVertexShader.hlsl" />
-    <FxCompile Include="Shaders\FogQuadPixelShader.hlsl" />
-    <FxCompile Include="Shaders\UberLit.hlsl" />
     <FxCompile Include="Shaders\Common.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FogPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FogQuadPixelShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\FogVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\UberLit.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

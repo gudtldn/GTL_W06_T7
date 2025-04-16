@@ -391,12 +391,13 @@ void ControlEditorPanel::CreateFlagButton() const
 
     ImGui::SameLine();
 
-    const char* ViewModeNames[] = { "Lit", "Unlit", "Wireframe", "SceneDepth" };
+    const char* ViewModeNames[] = { "Lit_Gouraud", "Lit_Lambert", "Lit_Phong", "Unlit", "Wireframe", "SceneDepth" };
     
     int rawViewMode = (int)ActiveViewport->GetViewMode();
-    int safeIndex = (rawViewMode >= 0) ? (rawViewMode % 4) : 0;
+    constexpr int ViewModeCount = IM_ARRAYSIZE(ViewModeNames);
+    int safeIndex = std::clamp(rawViewMode, 0, ViewModeCount - 1);
+    
     FString ViewModeControl = ViewModeNames[safeIndex];
-
     ImVec2 ViewModeTextSize = ImGui::CalcTextSize(GetData(ViewModeControl));
 
     if (ImGui::Button(GetData(ViewModeControl), ImVec2(30 + ViewModeTextSize.x, 32)))
@@ -414,8 +415,8 @@ void ControlEditorPanel::CreateFlagButton() const
                 ActiveViewport->SetViewMode((EViewModeIndex)i);
                 FEngineLoop::GraphicDevice.ChangeRasterizer(ActiveViewport->GetViewMode());
                 FEngineLoop::Renderer.ChangeViewMode(ActiveViewport->GetViewMode());
-            }
 
+            }
             if (bIsSelected)
             {
                 ImGui::SetItemDefaultFocus();

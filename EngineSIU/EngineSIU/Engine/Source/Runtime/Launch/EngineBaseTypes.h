@@ -4,7 +4,9 @@
 
 enum EViewModeIndex : uint8
 {
-    VMI_Lit,
+    VMI_Lit_Gouraud,
+    VMI_Lit_Lambert,
+    VMI_Lit_Phong,
     VMI_Unlit,
     VMI_Wireframe,
     VMI_SceneDepth,
@@ -30,4 +32,13 @@ enum ELevelViewportType : uint8
 
     LVT_MAX,
     LVT_None = 255,
+};
+
+
+enum class ELightingModel : uint8
+{
+    Gouraud = 0,
+    Lambert = 1,
+    BlinnPhong = 2,
+    Unlit = 3
 };

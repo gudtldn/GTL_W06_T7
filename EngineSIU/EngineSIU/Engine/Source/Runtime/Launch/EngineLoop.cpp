@@ -11,6 +11,7 @@
 #include "D3D11RHI/GraphicDevice.h"
 
 #include "Engine/EditorEngine.h"
+#include "Renderer/StaticMeshRenderPass.h"
 
 
 extern LRESULT ImGui_ImplWin32_WndProcHandler(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -130,6 +131,10 @@ int32 FEngineLoop::Init(HINSTANCE hInstance)
     ResourceManager.Initialize(&Renderer, &GraphicDevice);
 
     LevelEditor->Initialize();
+
+    // Todo : 호출 방식 변경
+    EViewModeIndex evi = LevelEditor->GetActiveViewportClient()->GetViewMode();
+    Renderer.StaticMeshRenderPass->UpdateShadersByViewMode(evi);
 
     GEngine = FObjectFactory::ConstructObject<UEditorEngine>(nullptr);
     GEngine->Init();

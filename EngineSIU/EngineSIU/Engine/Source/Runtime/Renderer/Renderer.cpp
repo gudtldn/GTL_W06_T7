@@ -123,7 +123,7 @@ void FRenderer::Render(const std::shared_ptr<FEditorViewportClient>& ActiveViewp
 
     Graphics->ChangeRasterizer(ActiveViewport->GetViewMode());
 
-    ChangeViewMode(ActiveViewport->GetViewMode());
+    //ChangeViewMode(ActiveViewport->GetViewMode());
 
     UpdateLightBufferPass->Render(ActiveViewport);
     StaticMeshRenderPass->Render(ActiveViewport);

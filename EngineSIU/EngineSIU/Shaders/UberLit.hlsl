@@ -6,11 +6,10 @@
 #define NUM_POINT_LIGHT              4
 #define NUM_SPOT_LIGHT               4
 
-#define LIGHTING_MODEL_GOURAUD       0
-#define LIGHTING_MODEL_LAMBERT       1
-#define LIGHTING_MODEL_BLINNPHONG    2
-#define LIGHTING_MODEL_UNLIT         3
-
+#define LIGHTING_MODEL_GOURAUD       1
+#define LIGHTING_MODEL_LAMBERT       2
+#define LIGHTING_MODEL_BLINNPHONG    3
+#define LIGHTING_MODEL_UNLIT         4
 
 struct AmbientLightInfo
 {
@@ -171,7 +170,7 @@ struct PixelInput
 
 float4 Uber_VS(VertexInput input)
 {
-#if LIGHTING_MODEL_GOURAUD
+#if LIGHTING_MODEL == LIGHTING_MODEL_GOURAUD
     float3 lighting = float3(0.0f, 0.0f, 0.0f);
 
     // Ambient
@@ -181,7 +180,7 @@ float4 Uber_VS(VertexInput input)
     [unroll]
     for (int i=0; i<NUM_POINT_LIGHT; ++i)
     {
-        lighting += PointLight(PointLights[i], input.worldPos, input.normalWS).rgb;
+        lighting += CalculatePointLight(PointLights[i], input.worldPos, input.normalWS).rgb;
     }
     
     // Directional Light
@@ -214,9 +213,8 @@ float4 Uber_PS(PixelInput Input)
     float diffuseFactor = saturate(dot(normal, dirLightDir));
     float3 directionalDiffuse = DirectionalLight.Color * DirectionalLight.Intensity * Material.DiffuseColor.rgb * diffuseFactor;
 
-#if LIGHTING_MODEL_LAMBERT
+#if LIGHTING_MODEL == LIGHTING_MODEL_LAMBERT
     // Lambert : Ambient + Diffuse
-
     float3 lighting = ambient + directionalDiffuse;
 
     // PointLights (diffuse)
@@ -256,24 +254,19 @@ float4 Uber_PS(PixelInput Input)
     }
 
     finalColor = baseColor * lighting + emissive;
-#elif LIGHTING_MODEL_BLINNPHONG
+
+#elif LIGHTING_MODEL == LIGHTING_MODEL_BLINNPHONG
     // Blinn-Phong : Ambient + Diffuse + Specular
     
     float3 viewDir = normalize(CameraPosition - Input.worldPos);
     
-    // Ambient contribution
-    float3 ambient = AmbientLight.Color * AmbientLight.Intensity * Material.AmbientColor.rgb;
-    
     // Directional light
-    float3 dirLightDir = normalize(-DirectionalLight.Direction);
-    float diffuseFactor = saturate(dot(normal, dirLightDir));
-    float3 diffuse = DirectionalLight.Color * DirectionalLight.Intensity * Material.DiffuseColor.rgb * diffuseFactor;
     float3 halfVector = normalize(dirLightDir + viewDir);
     float specAngle = saturate(dot(normal, halfVector));
     float specular = pow(specAngle, 32.0); // 스페큘러 지수 32.0 (필요시 재질 값 사용)
     float3 specularDir = DirectionalLight.Color * DirectionalLight.Intensity * Material.SpecularColor.rgb * specular * Material.SpecularScalar;
     
-    float3 lighting = ambient + diffuse + specularDir;
+    float3 lighting = ambient + directionalDiffuse + specularDir;
     
     // PointLights (diffuse + specular)
     [unroll]
@@ -318,7 +311,7 @@ float4 Uber_PS(PixelInput Input)
     
     finalColor = baseColor * lighting + emissive;
 
-#elif LIGHTING_MODEL_UNLIT
+#elif LIGHTING_MODEL == LIGHTING_MODEL_UNLIT
     return float4(baseColor, 1.0f);
 #endif
     return float4(finalColor, 1.0f);

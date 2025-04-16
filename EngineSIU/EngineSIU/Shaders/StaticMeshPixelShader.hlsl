@@ -59,12 +59,14 @@ struct PS_OUTPUT
 };
 
 
+
+
 PS_OUTPUT mainPS(PS_INPUT input)
 {
     PS_OUTPUT output;
     output.UUID = UUID;
 
-#if LIGHTING_MODEL_GOURAUD
+#if LIGHTING_MODEL == LIGHTING_MODEL_GOURAUD
     output.color = input.color;
 #else
     PixelInput uberPsInput;
