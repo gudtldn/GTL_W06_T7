@@ -307,6 +307,34 @@ bool FEditorViewportClient::IsSelected(const FVector2D& InPoint) const
     return false;
 }
 
+void FEditorViewportClient::DeprojectFVector2D(const FVector2D& ScreenPos, FVector& OutWorldOrigin, FVector& OutWorldDir) const
+{
+    const float TopLeftX = Viewport->GetViewport().TopLeftX;
+    const float TopLeftY = Viewport->GetViewport().TopLeftY;
+    const float Width = Viewport->GetViewport().Width;
+    const float Height = Viewport->GetViewport().Height;
+
+    // 뷰포트가 유효한 위치에 있는지?
+    assert(0.0f <= Width && 0.0f <= Height);
+
+    // 뷰포트의 NDC 위치
+    const FVector2D NDC_Pos = {
+        ((ScreenPos.X - TopLeftX) / Width * 2.0f) - 1.0f,
+        1.0f - ((ScreenPos.Y - TopLeftY) / Height * 2.0f)
+    };
+
+    FVector RayOrigin = {NDC_Pos.X, NDC_Pos.Y, 0.0f};
+    FVector RayEnd = {NDC_Pos.X, NDC_Pos.Y, 1.0f};
+
+    // 스크린 좌표계에서 월드 좌표계로 변환
+    const FMatrix InvProjView = FMatrix::Inverse(Projection) * FMatrix::Inverse(View);
+    RayOrigin = InvProjView.TransformPosition(RayOrigin);
+    RayEnd = InvProjView.TransformPosition(RayEnd);
+
+    OutWorldOrigin = RayOrigin;
+    OutWorldDir = (RayEnd - RayOrigin).GetSafeNormal();
+}
+
 
 D3D11_VIEWPORT& FEditorViewportClient::GetD3DViewport() const
 {
