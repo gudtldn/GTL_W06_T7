@@ -145,11 +145,89 @@ void PropertyEditorPanel::Render()
                     lightObj->SetAttenuationRadius(AttenuationRadius);
                 }
 
+                if (USpotLightComponent* spotLightObj = Cast<USpotLightComponent>(lightObj))
+                {
+                    ImGui::Separator();
+
+                    //ImGui::Text("Spot Light Properties");
+                    if (ImGui::CollapsingHeader("Spot Light Properties"))
+                    {
+                        float innerAngle = spotLightObj->GetInnerConeAngle();
+                        if (ImGui::SliderFloat("Inner Cone Angle", &innerAngle, 0.0f, 90.0f, "%.1f deg"))
+                        {
+                            spotLightObj->SetInnerConeAngle(innerAngle); // Use the new Setter
+                        }
+
+                        float outerAngle = spotLightObj->GetOuterConeAngle();
+                        if (ImGui::SliderFloat("Outer Cone Angle", &outerAngle, 0.0f, 90.f, "%.1f deg"))
+                        {
+                            // if (outerAngle < innerAngle) outerAngle = innerAngle;
+                            spotLightObj->SetOuterConeAngle(outerAngle); // Use the new Setter
+                        }
+
+                        float falloff = spotLightObj->GetFalloff();
+                        if (ImGui::SliderFloat("Spot Falloff", &falloff, 0.1f, 20.0f, "%.2f"))
+                        {
+                            spotLightObj->SetFalloff(falloff); // Use the new Setter
+                        }
+                    }
+                }
+
                 ImGui::TreePop();
             }
 
             ImGui::PopStyleColor();
         }
+        
+        //// 여기 아래 ULightComponent를 USpotLightCOmponent로 변경해서 SPotlight에 관한 부분만 작업 
+        //if (USpotLightComponent* lightObj = PickedActor->GetComponentByClass<USpotLightComponent>())
+        //{
+        //    ImGui::PushStyleColor(ImGuiCol_Header, ImVec4(0.1f, 0.1f, 0.1f, 1.0f));
+
+        //    if (ImGui::TreeNodeEx("Light Component", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
+        //    {
+        //        /*  DrawColorProperty("Ambient Color",
+        //              [&]() { return lightObj->GetAmbientColor(); },
+        //              [&](FVector4 c) { lightObj->SetAmbientColor(c); });
+        //          */
+        //        DrawColorProperty("Base Color",
+        //            [&]() { return lightObj->GetDiffuseColor(); },
+        //            [&](FLinearColor c) { lightObj->SetDiffuseColor(c); });
+
+        //        DrawColorProperty("Specular Color",
+        //            [&]() { return lightObj->GetSpecularColor(); },
+        //            [&](FLinearColor c) { lightObj->SetSpecularColor(c); });
+
+        //        float Intensity = lightObj->GetIntensity();
+        //        if (ImGui::SliderFloat("Intensity", &Intensity, 0.0f, 10000.0f, "%1.f"))
+        //            lightObj->SetIntensity(Intensity);
+
+        //         /*  
+        //        float falloff = lightObj->GetFalloff();
+        //        if (ImGui::SliderFloat("Falloff", &falloff, 0.1f, 10.0f, "%.2f")) {
+        //            lightObj->SetFalloff(falloff);
+        //        }
+
+        //        TODO : For SpotLight
+        //        */
+
+        //        float attenuation = lightObj->GetAttenuation();
+        //        if (ImGui::SliderFloat("Attenuation", &attenuation, 0.01f, 10000.f, "%.1f")) {
+        //            lightObj->SetAttenuation(attenuation);
+        //        }
+
+        //        float AttenuationRadius = lightObj->GetAttenuationRadius();
+        //        if (ImGui::SliderFloat("Attenuation Radius", &AttenuationRadius, 0.01f, 10000.f, "%.1f")) {
+        //            lightObj->SetAttenuationRadius(AttenuationRadius);
+        //        }
+
+        //        ImGui::TreePop();
+        //    }
+
+        //    ImGui::PopStyleColor();
+        //}
+
+
 
     if (PickedActor)
         if (UProjectileMovementComponent* ProjectileComp = (PickedActor->GetComponentByClass<UProjectileMovementComponent>()))

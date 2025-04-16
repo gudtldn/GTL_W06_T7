@@ -304,6 +304,31 @@ enum ELightType {
 //     int nLights;
 //     float    pad0, pad1, pad2;
 // };
+struct FLight
+{ 
+FVector Position;
+float Falloff = 1.0f;
+
+FVector Direction;
+float pad3;
+FVector DiffuseColor;
+float pad1;
+
+FVector SpecularColor;
+float pad2;
+
+float Attenuation = 20.f;
+int   Enabled;
+int   Type;
+float Intensity = 10.f;    // m_fIntensity: 광원 강도
+
+float AttRadius = 20.f;    // m_fAttRadius: 감쇠 반경
+FVector LightPad;
+
+float InnerConeAngle;  // HLSL의 m_fInnerConeAngle 에 대응
+float OuterConeAngle;  // HLSL의 m_fOuterConeAngle 에 대응
+FVector2D Pad1;        // HLSL의 float2 Pad1 에 대응 (16바이트 정렬 확인)
+};
 
 struct FAmbientLightInfo
 {

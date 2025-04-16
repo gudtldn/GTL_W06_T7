@@ -12,6 +12,7 @@
 #include "LineRenderPass.h"
 #include "DepthBufferDebugPass.h"
 #include "FogRenderPass.h"
+#include "EditorRenderPass.h"
 #include <UObject/UObjectIterator.h>
 #include <UObject/Casts.h>
 #include "GameFrameWork/Actor.h"
@@ -32,6 +33,7 @@ void FRenderer::Initialize(FGraphicsDevice* InGraphics, FDXDBufferManager* InBuf
     LineRenderPass = new FLineRenderPass();
     DepthBufferDebugPass = new FDepthBufferDebugPass();
     FogRenderPass = new FFogRenderPass();
+    EditorRenderPass = new FEditorRenderPass();
 
     StaticMeshRenderPass->Initialize(BufferManager, Graphics, ShaderManager);
     BillboardRenderPass->Initialize(BufferManager, Graphics, ShaderManager);
@@ -40,6 +42,7 @@ void FRenderer::Initialize(FGraphicsDevice* InGraphics, FDXDBufferManager* InBuf
     LineRenderPass->Initialize(BufferManager, Graphics, ShaderManager);
     DepthBufferDebugPass->Initialize(BufferManager, Graphics, ShaderManager);
     FogRenderPass->Initialize(BufferManager, Graphics, ShaderManager);
+    EditorRenderPass->Initialize(BufferManager, Graphics, ShaderManager);
 
     CreateConstantBuffers();
 }
@@ -134,9 +137,9 @@ void FRenderer::ClearRenderArr()
 
 void FRenderer::Render(const std::shared_ptr<FEditorViewportClient>& ActiveViewport)
 {
-    Graphics->DeviceContext->RSSetViewports(1, &ActiveViewport->GetD3DViewport());
+    Graphics->DeviceContext->RSSetViewports(1, &ActiveViewport->GetD3DViewport()); // 지금부터 그림 글리 화면 영역 어디인지 알려줘
 
-    Graphics->ChangeRasterizer(ActiveViewport->GetViewMode());
+    Graphics->ChangeRasterizer(ActiveViewport->GetViewMode()); // 뷰포트 설정에 맞는 그리기 방식 그래픽 카드에 설정
 
     //ChangeViewMode(ActiveViewport->GetViewMode());
 
@@ -158,6 +161,8 @@ void FRenderer::Render(const std::shared_ptr<FEditorViewportClient>& ActiveViewp
     }
     LineRenderPass->Render(ActiveViewport);
     GizmoRenderPass->Render(ActiveViewport);
+
+    EditorRenderPass->Render(ActiveViewport);
 
     ClearRenderArr();
 }
