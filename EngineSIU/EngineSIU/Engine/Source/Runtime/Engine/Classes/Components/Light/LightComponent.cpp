@@ -61,27 +61,27 @@ void ULightComponent::SetFalloff(float fallOff)
     Falloff = fallOff;
 }
 
-FLinearColor ULightComponent::GetDiffuseColor()
+FLinearColor ULightComponent::GetDiffuseColor() const
 {
     return FLinearColor(DiffuseColor.X, DiffuseColor.Y, DiffuseColor.Z, 1);
 }
 
-FLinearColor ULightComponent::GetSpecularColor()
+FLinearColor ULightComponent::GetSpecularColor() const
 {
     return FLinearColor(SpecularColor.X, SpecularColor.Y, SpecularColor.Z, 1);
 }
 
-float ULightComponent::GetAttenuation()
+float ULightComponent::GetAttenuation() const
 {
     return Attenuation;
 }
 
-float ULightComponent::GetAttenuationRadius()
+float ULightComponent::GetAttenuationRadius() const
 {
     return AttRadius;
 }
 
-float ULightComponent::GetFalloff()
+float ULightComponent::GetFalloff() const
 {
     return Falloff;
 }

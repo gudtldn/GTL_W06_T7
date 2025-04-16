@@ -23,11 +23,11 @@ public:
     void SetIntensity(float Intensity);
     void SetFalloff(float fallOff);
 
-    FLinearColor GetDiffuseColor();
-    FLinearColor GetSpecularColor();
-    float GetAttenuation();
-    float GetAttenuationRadius();
-    float GetFalloff();
+    FLinearColor GetDiffuseColor() const;
+    FLinearColor GetSpecularColor() const;
+    float GetAttenuation() const;
+    float GetAttenuationRadius() const;
+    float GetFalloff() const;
 protected:
     FBoundingBox AABB;
     
