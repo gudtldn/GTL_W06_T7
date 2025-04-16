@@ -58,6 +58,12 @@ cbuffer TextureConstants : register(b6)
     float2 TexturePad0;
 }
 
+cbuffer RenderNormalConstants : register(b7)
+{
+    bool IsRenderNormal;
+    float3 RenderNormalPad0;
+}
+
 #include "UberLit.hlsl"
 
 struct PS_INPUT
@@ -140,7 +146,7 @@ PS_OUTPUT mainPS(PS_INPUT input)
         float3x3 TBN = float3x3(T, B, N);
         Normal = normalize(mul(sampledNormal, TBN));
         //float3 normalColor = normalWS * 0.5f + 0.5f;
-        //output.color = float4(Normal, 1.0f);
+        //output.color = float4(Normal * 0.5f + 0.5f, 1.0f);
         //return output;
         
         //// 4) TBN 행렬 구성
@@ -163,6 +169,12 @@ PS_OUTPUT mainPS(PS_INPUT input)
     else // bUseBumpMap == 0
     {
         Normal = normalize(input.normal);
+    }
+    
+    if (IsRenderNormal)
+    {
+        output.color = float4(Normal * 0.5f + 0.5f, 1.0f);
+        return output;
     }
 
 #if LIGHTING_MODEL == LIGHTING_MODEL_GOURAUD

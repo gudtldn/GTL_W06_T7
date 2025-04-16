@@ -90,10 +90,15 @@ void FStaticMeshRenderPass::ChangeViewMode(EViewModeIndex evi) const
     case EViewModeIndex::VMI_Lit_Lambert:
     case EViewModeIndex::VMI_Lit_Phong:
         UpdateLitUnlitConstant(1);
+        UpdateRenderNormalConstant(0);
         break;
     case EViewModeIndex::VMI_Wireframe:
     case EViewModeIndex::VMI_Unlit:
         UpdateLitUnlitConstant(0);
+        UpdateRenderNormalConstant(0);
+        break;
+    case EViewModeIndex::VMI_Normal:
+        UpdateRenderNormalConstant(1);
         break;
     }
 }
@@ -144,7 +149,8 @@ void FStaticMeshRenderPass::PrepareRenderState() const
                                   TEXT("FMaterialConstants"),
                                   TEXT("FLitUnlitConstants"),
                                   TEXT("FSubMeshConstants"),
-                                  TEXT("FTextureConstants")
+                                  TEXT("FTextureConstants"),
+                                  TEXT("FRenderNormalConstants")
     };
 
     BufferManager->BindConstantBuffers(PSBufferKeys, 1, EShaderStage::Pixel);
@@ -163,6 +169,13 @@ void FStaticMeshRenderPass::UpdateLitUnlitConstant(int isLit) const
     FLitUnlitConstants Data;
     Data.isLit = isLit;
     BufferManager->UpdateConstantBuffer(TEXT("FLitUnlitConstants"), Data);
+}
+
+void FStaticMeshRenderPass::UpdateRenderNormalConstant(bool bRenderNormal) const
+{
+    FRenderNormalConstants Data = FRenderNormalConstants(false, FVector(0.f, 0.f, 0.f));
+    Data.bRenderNormal = bRenderNormal;
+    BufferManager->UpdateConstantBuffer(TEXT("FRenderNormalConstants"), Data);
 }
 
 

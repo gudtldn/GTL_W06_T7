@@ -422,7 +422,7 @@ void ControlEditorPanel::CreateFlagButton() const
 
     ImGui::SameLine();
 
-    const char* ViewModeNames[] = { "Lit_Gouraud", "Lit_Lambert", "Lit_Phong", "Unlit", "Wireframe", "SceneDepth" };
+    const char* ViewModeNames[] = { "Lit_Gouraud", "Lit_Lambert", "Lit_Phong", "Unlit", "Wireframe", "SceneDepth", "Normal"};
     
     int rawViewMode = (int)ActiveViewport->GetViewMode();
     constexpr int ViewModeCount = IM_ARRAYSIZE(ViewModeNames);
