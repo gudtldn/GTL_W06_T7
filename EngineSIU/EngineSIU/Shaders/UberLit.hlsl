@@ -11,6 +11,7 @@
 #define LIGHTING_MODEL_BLINNPHONG    3
 #define LIGHTING_MODEL_UNLIT         4
 
+
 struct AmbientLightInfo
 {
     float3 Color;
@@ -51,8 +52,11 @@ struct SpotLightInfo
     float  pad3;
     float  Intensity;
     float  m_fAttRadius;
-    float  m_fFalloff;      // 추가: 스팟라이트 감쇠 인자
-    float  m_fAttenuation;  // 추가: 거리 기반 감쇠 계수
+    float  m_fFalloff;      // 스팟라이트 감쇠 인자
+    float  m_fAttenuation;  // 거리 기반 감쇠 계수
+    float  InnerConeAngle;
+    float  OuterConeAngle;
+    float2 pad4;
 };
 
 cbuffer Lighting : register(b2)
@@ -73,36 +77,43 @@ cbuffer MaterialConstants : register(b3)
 //---------------------------------------------------------------------------
 float4 CalculateSpotLight(SpotLightInfo light, float3 vPosition, float3 vNormal)
 {
-    // 광원과 픽셀 위치 간 벡터 계산
-    float3 vToLight = light.Position - vPosition;
-    float fDistance = length(vToLight);
+    float3 vToLightSource = light.Position - vPosition;
+    float fDistanceToLight = length(vToLightSource);
+    float3 vDirectionToLightSource = vToLightSource / fDistanceToLight;
+    float3 normal = normalize(vNormal);
 
-    // 감쇠 반경을 벗어나면 기여하지 않음
-    if (fDistance > light.m_fAttRadius)
-    {
-        return float4(0.0f, 0.0f, 0.0f, 1.0f);
-    }
-
-    float fSpecularFactor = 0.0f;
-    vToLight /= fDistance; // 정규화
+    float fSpotCosAngle =  dot(-vDirectionToLightSource, light.Direction); // length(gLights[nIndex].m_vDirection);
     
-    float fDiffuseFactor = saturate(dot(vNormal, vToLight));
-
-    if (fDiffuseFactor > 0.0f)
-    {
-        float3 vView = normalize(CameraPosition - vPosition);
-        float3 vHalf = normalize(vToLight + vView);
-        fSpecularFactor = pow(max(dot(normalize(vNormal), vHalf), 0.0f), 32);
-    }
     
-    float fSpotFactor = pow(max(dot(-vToLight, light.Direction), 0.0f), light.m_fFalloff);
-    float fAttenuationFactor = 1.0f / (1.0f + light.m_fAttenuation * fDistance * fDistance);
+    float DistanceAttenuation = saturate(1.0f - fDistanceToLight / (light.m_fAttRadius));
     
-    float3 lit = (light.DiffuseColor.rgb * fDiffuseFactor * Material.DiffuseColor) +
-                 (light.SpecularColor.rgb * fSpecularFactor * Material.SpecularColor);
+    float CosInnerConeAngle = cos(radians(light.InnerConeAngle));
+    float CosOuterConeAngle = cos(radians(light.OuterConeAngle));
+    //float CosInnerConeAngle = cos(radians(10.0f / 2)); // 예시: 내부 원뿔 반각 30도의 코사인
+    //float CosOuterConeAngle = cos(radians(60.0f / 2)); // 예시: 외부 원뿔 반각 60도의 코사인
+    
+    float SpotLightRatioBase = (fSpotCosAngle - CosOuterConeAngle) / (CosInnerConeAngle - CosOuterConeAngle));
+    //float SpotLightRatioBase = (fSpotCosAngle - cosInnerConeAngle) / (cosInnerConeAngle - cosOuterConeAngle);
+    float SaturatedSpotLightRatioBase = saturate(SpotLightRatioBase);
+    
+    float SpotFalloffExponent = light.m_fFalloff;
+    float SpotAngleAttenuation = pow(SaturatedSpotLightRatioBase, SpotFalloffExponent);
+    
+    // Lambertian Diffuse 
+    float3 DiffuseColorRGB = light.DiffuseColor;
+    float LambertFactor = max(0.0f, dot(normal, vDirectionToLightSource));
+    float3 DiffuseLightContribution = DiffuseColorRGB * LambertFactor;
+    
+    float CombinedAttenuation = DistanceAttenuation * SpotAngleAttenuation;
 
-    // intensity와 attenuation factor, spot factor를 곱하여 최종 색상 계산
-    return float4(lit * fAttenuationFactor * fSpotFactor * light.Intensity, 1.0f);
+    // 최종 확산 색상 (감쇠 및 광원 강도 적용)
+    float3 FinalDiffuseColor = DiffuseLightContribution * CombinedAttenuation * light.Intensity;
+    
+    float4 FinalColor = float4(FinalDiffuseColor, 1.0f);
+
+    //return float4(DistanceAttenuation, DistanceAttenuation, DistanceAttenuation, 1.0f);
+    return FinalColor;
+    
 }
 
 float4 CalculatePointLight(PointLightInfo light, float3 vPosition, float3 vNormal)
@@ -151,6 +162,32 @@ float3 CalculateDirectionalLight(float3 normal)
     return DirectionalLight.Color * DirectionalLight.Intensity * diffuseFactor;
 }
 
+float3 CalculateDirLight(DirectionalLightInfo light, float3 vPosition, float3 vNormal)
+{
+    float3 result = float3(0, 0, 0);
+    float3 vToLight = normalize(-light.Direction);
+    float NdotL = dot(vNormal, vToLight);
+
+    if (NdotL <= 0.0f)
+        return float4(0, 0, 0, 1);
+
+    float3 safeDiffuse = (length(Material.DiffuseColor) < 0.001f) ? float3(1, 1, 1) : Material.DiffuseColor;
+    float3 vView = normalize(CameraPosition - vPosition);
+    float3 vHalf = normalize(vToLight + vView);
+    float fSpecular = pow(max(dot(normalize(vNormal), vHalf), 0.0f), 32);
+
+#if LIGHTING_MODEL == LIGHTING_MODEL_GOURAUD
+    return float4(0, 0, 0, 1);
+
+#elif LIGHTING_MODEL == LIGHTING_MODEL_LAMBERT
+    result = light.Color * NdotL * safeDiffuse;
+
+#elif LIGHTING_MODEL == LIGHTING_MODEL_BLINNPHONG
+    result = light.Color * NdotL * safeDiffuse + light.Color * fSpecular * Material.SpecularColor;
+#endif
+
+    return result * light.Intensity;
+}
 
 struct VertexInput
 {
@@ -177,15 +214,20 @@ float4 Uber_VS(VertexInput input)
     lighting += CalculateAmbientLight().rgb;
 
     // Point Lights
-    [unroll]
     for (int i=0; i<NUM_POINT_LIGHT; ++i)
     {
         lighting += CalculatePointLight(PointLights[i], input.worldPos, input.normalWS).rgb;
     }
+
+    // Spot Lights
+    for (int i=0; i<NUM_SPOT_LIGHT; ++i)
+    {
+        lighting += saturate(CalculateSpotLight(SpotLights[i], input.worldPos, input.normalWS).rgb);
+    }
     
     // Directional Light
     lighting += CalculateDirectionalLight(input.normalWS);
-
+    
     return float4(input.color.rgb * lighting, 1.0f);
 
 #else
@@ -252,7 +294,7 @@ float4 Uber_PS(PixelInput Input)
         float attenuation = 1.0 / (1.0 + SpotLights[i].m_fAttenuation * dist * dist);
         lighting += SpotLights[i].DiffuseColor * SpotLights[i].Intensity * Material.DiffuseColor.rgb * diff * attenuation * spotFactor;
     }
-
+    
     finalColor = baseColor * lighting + emissive;
 
 #elif LIGHTING_MODEL == LIGHTING_MODEL_BLINNPHONG

@@ -370,8 +370,11 @@ struct FSpotLightInfo
     float  pad3;
     float  Intensity;
     float  m_fAttRadius;
-    float  m_fFalloff;      // 추가: 스팟라이트 감쇠 인자
-    float  m_fAttenuation;  // 추가: 거리 기반 감쇠 계수
+    float  m_fFalloff;      // 스팟라이트 감쇠 인자
+    float  m_fAttenuation;  // 거리 기반 감쇠 계수
+    float  InnerConeAngle;
+    float  OuterConeAngle;
+    FVector2D  pad4; 
 };
 
 #define NUM_POINT_LIGHT         4

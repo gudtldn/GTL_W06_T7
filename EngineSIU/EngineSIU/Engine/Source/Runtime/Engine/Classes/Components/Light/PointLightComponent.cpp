@@ -2,7 +2,7 @@
 
 UPointLightComponent::UPointLightComponent()
 {
-    Type = ELightType::POINT_LIGHT;
+    //Type = ELightType::POINT_LIGHT;
 }
 
 UPointLightComponent::~UPointLightComponent()

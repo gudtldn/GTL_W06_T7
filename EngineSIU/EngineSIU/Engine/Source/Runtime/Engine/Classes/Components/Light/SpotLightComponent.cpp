@@ -1,7 +1,15 @@
 #include "SpotLightComponent.h"
 USpotLightComponent::USpotLightComponent()
 {
-    Type = ELightType::SPOT_LIGHT;
+    DiffuseColor = FVector(1.0f, 1.0f, 1.0f);       // 기본 디퓨즈 흰색
+    SpecularColor = FVector(1.0f, 1.0f, 1.0f);      // 기본 스펙큘러 흰색
+    Attenuation = 1.0f;                             // 기본 감쇠 값
+    AttRadius = 1000.0f;                            // 감쇠 반경
+    Intensity = 1.0f;                               // 광원 강도
+    Falloff = 1.0f;                                 // 스팟 라이트 falloff 계수
+    Direction = FVector(0.0f, -1.0f, 0.0f);          // 기본 광원
+    InnerConeAngle = 15;
+    OuterConeAngle = 30;
 }
 
 USpotLightComponent::~USpotLightComponent()
@@ -40,10 +48,10 @@ void USpotLightComponent::SetOuterConeAngle(float NewAngle)
 
 float USpotLightComponent::GetFalloff() const
 {
-    return Light.Falloff;
+    return Falloff;
 }
 
 void USpotLightComponent::SetFalloff(float NewFalloff)
 {
-    Light.Falloff = NewFalloff;
+    Falloff = NewFalloff;
 }

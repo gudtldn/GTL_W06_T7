@@ -110,6 +110,8 @@ void FUpdateLightBufferPass::Render(const std::shared_ptr<FEditorViewportClient>
             SpotLight.m_fAttRadius = Light->GetAttenuationRadius();
             SpotLight.m_fFalloff = Light->GetFalloff();
             SpotLight.m_fAttenuation = Light->GetAttenuation();
+            SpotLight.InnerConeAngle = Light->GetInnerConeAngle();
+            SpotLight.OuterConeAngle = Light->GetOuterConeAngle();
             
             //// 월드 변환 행렬 계산 (스케일 1로 가정)
             //FMatrix Model = JungleMath::CreateModelMatrix(Light->GetWorldLocation(), Light->GetWorldRotation(), { 1, 1, 1 });

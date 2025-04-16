@@ -110,10 +110,6 @@ void PropertyEditorPanel::Render()
 
             if (ImGui::TreeNodeEx("Light Component", ImGuiTreeNodeFlags_Framed | ImGuiTreeNodeFlags_DefaultOpen))
             {
-                /*  DrawColorProperty("Ambient Color",
-                      [&]() { return lightObj->GetAmbientColor(); },
-                      [&](FVector4 c) { lightObj->SetAmbientColor(c); });
-                  */
                 DrawColorProperty("Base Color",
                     [&]() { return lightObj->GetDiffuseColor(); },
                     [&](FLinearColor c) { lightObj->SetDiffuseColor(c); });
@@ -125,15 +121,6 @@ void PropertyEditorPanel::Render()
                 float Intensity = lightObj->GetIntensity();
                 if (ImGui::SliderFloat("Intensity", &Intensity, 0.0f, 10000.0f, "%1.f"))
                     lightObj->SetIntensity(Intensity);
-
-                 /*  
-                float falloff = lightObj->GetFalloff();
-                if (ImGui::SliderFloat("Falloff", &falloff, 0.1f, 10.0f, "%.2f")) {
-                    lightObj->SetFalloff(falloff);
-                }
-
-                TODO : For SpotLight
-                */
 
                 float attenuation = lightObj->GetAttenuation();
                 if (ImGui::SliderFloat("Attenuation", &attenuation, 0.01f, 10000.f, "%.1f")) {
@@ -172,7 +159,6 @@ void PropertyEditorPanel::Render()
                         }
                     }
                 }
-
                 ImGui::TreePop();
             }
 
@@ -226,8 +212,6 @@ void PropertyEditorPanel::Render()
 
         //    ImGui::PopStyleColor();
         //}
-
-
 
     if (PickedActor)
         if (UProjectileMovementComponent* ProjectileComp = (PickedActor->GetComponentByClass<UProjectileMovementComponent>()))

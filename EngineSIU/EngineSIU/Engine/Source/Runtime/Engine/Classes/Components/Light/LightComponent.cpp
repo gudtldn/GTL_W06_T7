@@ -25,7 +25,7 @@ UObject* ULightComponent::Duplicate(UObject* InOuter)
     NewComponent->AttRadius = AttRadius;
     NewComponent->Intensity = Intensity;
     NewComponent->Falloff = Falloff;
-    NewComponent-> Type = Type;
+    //NewComponent-> Type = Type;
     NewComponent-> Direction = Direction;
     
     return NewComponent;

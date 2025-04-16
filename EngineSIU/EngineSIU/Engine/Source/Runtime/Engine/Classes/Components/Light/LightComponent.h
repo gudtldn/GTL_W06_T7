@@ -29,15 +29,15 @@ public:
     float GetAttenuationRadius();
     float GetFalloff();
 protected:
-
     FBoundingBox AABB;
+    
     FVector DiffuseColor;
     FVector SpecularColor;
     float Attenuation;
     float AttRadius;
     float Intensity;
     float Falloff;
-    ELightType Type;
+    // ELightType Type;
     FVector Direction;
 
 public:
